@@ -25,21 +25,17 @@
 
 #include "GeneralSocketProcessor.h"
 
-#include <app/common/fifoarray.h>
 #include "iostream"
+#include <vector>
+
+
+
 
 extern ts_udb_mgr g_udb_mgr;
 extern pj_bool_t g_run;
 int pj_runnable;
 static u_char snd_buff[512];
 pj_thread_t *pt;
-
-fifoArray snd_data_buff;                                        //the pjsip data buffer
-static pthread_mutex_t s_lock = PTHREAD_MUTEX_INITIALIZER;      //use in pt
-//static pthread_cond_t s_cond = PTHREAD_COND_INITIALIZER;        //use in pt
-sem_t sem_sndto_client;
-
-
 
 /*pjsip data*/
 typedef struct snd_to_client_data_t
@@ -52,6 +48,27 @@ typedef struct snd_to_client_data_t
 }
 snd_to_client_data;
 
+std::vector<snd_to_client_data> snd_data_buffer;
+static pthread_mutex_t s_lock = PTHREAD_MUTEX_INITIALIZER;      //use in pt
+//static pthread_cond_t s_cond = PTHREAD_COND_INITIALIZER;        //use in pt
+sem_t sem_sndto_client;
+
+static int add_snd_data(snd_to_client_data &data)
+{
+	snd_data_buffer.push_back(data);
+	return TS_SUCCESS;
+}
+
+static int pop_first_snd_data(snd_to_client_data &data)
+{
+	if(snd_data_buffer.size() <= 0){
+		return TS_FAILED;
+	}
+	data = snd_data_buffer[0];
+	snd_data_buffer.erase(snd_data_buffer.begin());
+	return TS_SUCCESS;
+}
+
 
 
 PATTERN_SINGLETON_IMPLEMENT(CGeneralSocketProcessor);
@@ -63,10 +80,6 @@ CGeneralSocketProcessor::CGeneralSocketProcessor() :CEZThread("CGeneralSocketPro
     printf("CGeneralSocketProcessor::CGeneralSocketProcessor()>>>>>>>>>\n");
 
     m_pSocketMsgQue = new CSocketMsgQue(0);// 0 - do not limit size
-
-    memset(&snd_data_buff, 0, sizeof(snd_data_buff));
-    //create buffers
-    fifo_array_create(&snd_data_buff, BUFFER_SIZE, sizeof(snd_to_client_data));
 
     int ini2 = sem_init(&sem_sndto_client, 0, 0);
     if(ini2 != 0)
@@ -247,6 +260,7 @@ BOOL  CGeneralSocketProcessor::RecvSocketMessage (SOCKET_MSG_NODE *pMsg, BOOL wa
 int sndto_client(void *data)
 {
     snd_to_client_data *snd_data = NULL;
+	
 
     //__fline;
     LOG4CPLUS_INFO(LOG_IPC, "start sndto_client");
@@ -262,18 +276,19 @@ int sndto_client(void *data)
         pthread_mutex_lock(&s_lock);
 
         //pop the oldest request.
-        snd_data = (snd_to_client_data *)fifo_array_pop(&snd_data_buff);
-        if(NULL != snd_data)
+		snd_to_client_data send_data = {0};
+		int result = pop_first_snd_data(send_data);
+
+		if(result == TS_SUCCESS)
         {
             //printf("in sndto_client: pjsrv=%p, _user->addr=%s, port=%d\n",snd_data->srv, snd_data->ip, snd_data->port);
-            LOG4CPLUS_INFO(LOG_IPC, "send_data_to_client "<<snd_data->ip << ":"<<snd_data->port);
+            LOG4CPLUS_INFO(LOG_IPC, "send_data_to_client "<<send_data.ip << ":"<<send_data.port);
             //call the pjsip API to send data to client.
-            send_data_to_client(snd_data->srv,
-                                (unsigned char *)snd_data->snd_data,
-                                snd_data->snd_len,
-                                snd_data->ip,
-                                snd_data->port);
-            memset(snd_data, 0, sizeof(snd_to_client_data));
+            send_data_to_client(send_data.srv,
+                                (unsigned char *)send_data.snd_data,
+                                send_data.snd_len,
+                                send_data.ip,
+                                send_data.port);
             //usleep(50*1000);
         }
         pthread_mutex_unlock(&s_lock);
@@ -413,7 +428,7 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
 
                         pthread_mutex_lock(&s_lock);
                         printf("in HOST_SERV_REQ case:5\n");
-                        fifo_array_bput(&snd_data_buff, &tc);
+                        add_snd_data(tc);
                         printf("in HOST_SERV_REQ case:6\n");
                         //if(snd_data_buff.used_size == 1){
                         //	pthread_cond_signal(&s_cond);
@@ -522,7 +537,7 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                         tc.port = sdp.port;
 
                         pthread_mutex_lock(&s_lock);
-                        fifo_array_bput(&snd_data_buff, &tc);
+                        add_snd_data(tc);
                         //if(snd_data_buff.used_size == 1){
                         //	pthread_cond_signal(&s_cond);
                         //}
@@ -566,7 +581,7 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                         tc.port = sdp.port;
 
                         pthread_mutex_lock(&s_lock);
-                        fifo_array_put(&snd_data_buff, &tc);
+						add_snd_data(tc);
                         //if(snd_data_buff.used_size == 1){
                         //	pthread_cond_signal(&s_cond);
                         //}
@@ -684,8 +699,8 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                     tc.port = sdp.port;
 
                     pthread_mutex_lock(&s_lock);
-                    fifo_array_put(&snd_data_buff, &tc);
-                    //printf("in DOWN_CONFIG 6,\n");
+					add_snd_data(tc);
+					//printf("in DOWN_CONFIG 6,\n");
                     //if(snd_data_buff.used_size == 1){
                     //	pthread_cond_signal(&s_cond);
                     //}
@@ -755,8 +770,11 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
         }
         case CTRL_UDPSYS:
         {
-            //printf("in CTRL_UDPSYS case:\n");
             LOG4CPLUS_INFO(LOG_IPC, "CTRL_UDPSYS");
+#if 1			
+            LOG4CPLUS_INFO(LOG_IPC, "not support, break now ...");
+            break;
+#else
             IPC_DG_CTRL_UDPSYS *ctrl = (IPC_DG_CTRL_UDPSYS *)structs;
             if(header->type == IPC_REQUEST)
             {
@@ -831,6 +849,7 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                 }
             }
             break;
+#endif
         }
         case INFRARED_LEARN:
         {
@@ -909,8 +928,8 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                 tc.port = sdp.port;
                 //if(pthread_mutex_trylock(&s_lock) == EBUSY)
                 pthread_mutex_lock(&s_lock);
-                fifo_array_bput(&snd_data_buff, &tc);
-                //if(snd_data_buff.used_size == 1){
+				add_snd_data(tc);
+				//if(snd_data_buff.used_size == 1){
                 //	pthread_cond_signal(&s_cond);
                 //}
                 pthread_mutex_unlock(&s_lock);
@@ -962,7 +981,7 @@ int CGeneralSocketProcessor::sendDeviceCtrl(char *ip,
     tc.port = port;
 
     pthread_mutex_lock(&s_lock);
-    fifo_array_put(&snd_data_buff, &tc);
+	add_snd_data(tc);
 
     pthread_mutex_unlock(&s_lock);
     sem_post(&sem_sndto_client);
