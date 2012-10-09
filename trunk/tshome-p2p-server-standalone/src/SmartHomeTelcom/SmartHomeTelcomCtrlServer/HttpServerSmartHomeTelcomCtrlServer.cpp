@@ -794,7 +794,7 @@ int CHttpServerSmartHomeTelcomCtrlServer::Do_controlDevice(CTeHomeIF &JsonData)
         Msg.Result= "1";
         Msg.Reason= "offline";
     }
-    else if((sdp = host_user->sdps.next))
+    else
     {
         for(int i = 0 ; i < vecSize ; i++)
         {

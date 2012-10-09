@@ -24,7 +24,6 @@
 #endif
 
 #include "../Logs.h"
-#include <app/common/fifoarray.h>
 
 #define THIS_FILE   "allocation.c"
 

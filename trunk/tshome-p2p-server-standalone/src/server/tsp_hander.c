@@ -5,7 +5,6 @@
  *      Author: sunzq
  */
  #include <app/common/config.h>
-#include <app/common/fifoarray.h>
 
 #define THIS_FILE "tsp_handler.c"
 #define TO_ALL_WEBPEER NULL
@@ -260,7 +259,7 @@ static int handle_remote_request(pj_turn_srv *srv,
 			memcpy(sdp4vec.sdp, rcv_buff, rcv_len);
 			sdp4vec.port = port;
 			sdp4vec.flag = 's';
-			
+			printf("&(user->lock)=%p\n",&(user->lock));
 			pthread_mutex_lock(&(user->lock));
 			int vecSize = user->sdpVec.size();
 			if(vecSize == 0){//login
@@ -288,6 +287,9 @@ static int handle_remote_request(pj_turn_srv *srv,
 			  */
 			if(!cmped){
 				int maxSize = user->home.maxUsers/2 + 1;
+				//在服务器端取消最大用户数的限制，由主机自己决定。
+				//每收到一个主机sdp时，需附带告知服务器将来还有的sdp个数。
+				//
 				if(vecSize == maxSize){//relogin
 					pj_turn_allocation_destroy_by_user(srv, user);
 					user->sdpVec.clear();
@@ -364,6 +366,8 @@ static int handle_remote_request(pj_turn_srv *srv,
 				//at present, one home just have one host
 				ts_user *host_user = &(user_list[0]);
 				printf("in case sdpl: host_user name=%s\n", host_user->username);
+				pthread_mutex_lock(&(host_user->lock));
+				printf("&(host_user->lock)=%p\n",&(host_user->lock));
 				LOG4CPLUS_DEBUG(LOG_TURN, "in case sdpl: host_user name="<<host_user->username<<",homeId="<<host_user->home_id);
 				user_sdp sdp2 = {0};
 				//pthread_mutex_init(&(host_user->lock),NULL);
@@ -389,7 +393,7 @@ static int handle_remote_request(pj_turn_srv *srv,
 					}
 					
 				} 
-
+				pthread_mutex_unlock(&(host_user->lock));
 				//pthread_mutex_unlock(&(host_user->lock));
 				if(0 != sdp2.port){
 					//send a mobile sdp data to host
