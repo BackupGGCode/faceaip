@@ -37,6 +37,7 @@ using namespace log4cplus::helpers;
 #define  LOG_ALLOCATION  Logger::getInstance(LOG4CPLUS_TEXT("ALLOC"))
 
 #define  LOG_SMARTHOMEJSTELCOM  Logger::getInstance(LOG4CPLUS_TEXT("JSTEL"))
+#define  LOG_WEBSERVICES  Logger::getInstance(LOG4CPLUS_TEXT("WEBS"))
 
 //日志等级
 /*

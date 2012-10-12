@@ -524,6 +524,12 @@ PJ_DECL(void) pj_turn_allocation_destroy(pj_turn_allocation *alloc)
     destroy_allocation(alloc);
 }
 
+PJ_DECL(void) pj_turn_allocation_shutdown(pj_turn_allocation *alloc)
+{
+    alloc_shutdown(alloc);
+}
+
+
 PJ_DECL(void) pj_turn_allocation_destroy_by_user(pj_turn_srv *srv, ts_user *user)
 {
     pj_turn_allocation *alloc;
@@ -571,7 +577,7 @@ pj_turn_allocation* pj_turn_allocation_find_by_sdp(pj_turn_srv *srv, user_sdp *s
     pj_turn_allocation_key dst_key;
     pj_assert(NULL != srv);
 
-    if (NULL == sdp) {
+    if (sdp->port == 0) {
         return NULL;
     }
     status = init_turn_allocation_key (&dst_key, (const char *)sdp->addr, sdp->port);
@@ -706,7 +712,7 @@ static void relay_timeout_cb(pj_timer_heap_t *heap, pj_timer_entry *e)
 				 addr, sizeof(addr));
 	addr_len = strlen(addr) + 1;
 	port = pj_sockaddr_get_port(&alloc->hkey.clt_addr);
-	user_sdp *sdp = NULL;
+	user_sdp sdp = {0};
 	alloc->server->core.handler.handle_timeout(alloc->server,
 										  alloc->cred.data.static_cred.username.ptr,
 										  alloc->cred.data.static_cred.username.slen,
@@ -714,7 +720,7 @@ static void relay_timeout_cb(pj_timer_heap_t *heap, pj_timer_entry *e)
 										  addr_len,
 										  port,
 										  &sdp);
-	pj_turn_allocation *target_alloc = pj_turn_allocation_find_by_sdp(alloc->server, sdp);
+	pj_turn_allocation *target_alloc = pj_turn_allocation_find_by_sdp(alloc->server, &sdp);
 	if(target_alloc != NULL){
 		restore_allocation(target_alloc);
 	}
@@ -1513,7 +1519,7 @@ static pj_status_t stun_on_rx_request(pj_stun_session *sess,
 		addr_len = strlen(addr) + 1;
 		port = pj_sockaddr_get_port(&alloc->hkey.clt_addr);
 
-		user_sdp *sdp = NULL;
+		user_sdp sdp = {0};
 		alloc->server->core.handler.handle_destroy(alloc->server,
 												  alloc->cred.data.static_cred.username.ptr,
 												  alloc->cred.data.static_cred.username.slen,
@@ -1562,7 +1568,7 @@ static pj_status_t stun_on_rx_request(pj_stun_session *sess,
 			addr_len = strlen(addr) + 1;
 			port = pj_sockaddr_get_port(src_addr);
 			
-			user_sdp *sdp = NULL;
+			user_sdp sdp = {0};
 
 			LOG4CPLUS_INFO(LOG_ALLOCATION, ">>> handle_request:"
 				<< alloc->cred.data.static_cred.username.slen << " "
@@ -1578,8 +1584,11 @@ static pj_status_t stun_on_rx_request(pj_stun_session *sess,
 												  result, 
 												  &result_len,
 												  &sdp);
-			pj_turn_allocation *target_alloc = pj_turn_allocation_find_by_sdp(alloc->server, sdp);
+			__fline;
+			printf("sdp ip:port=%s:%d\n", sdp.addr, sdp.port);
+			pj_turn_allocation *target_alloc = pj_turn_allocation_find_by_sdp(alloc->server, &sdp);
 			if(target_alloc != NULL){
+				__trip;
 				restore_allocation(target_alloc);
 			}
 			LOG4CPLUS_INFO(LOG_ALLOCATION, "handle_request   -- >>>:"
