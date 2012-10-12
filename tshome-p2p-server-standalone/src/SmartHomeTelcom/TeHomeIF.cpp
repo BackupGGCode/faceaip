@@ -840,7 +840,10 @@ void CTeHomeIF::Encode(const CeHomeMsg_getCtrlDeviceState                       
 
 bool CTeHomeIF::Decode(CeHomeMsg_getCtrlDeviceState &Msg)
 {
-    Msg.DeviceID  = m_JsonValue["deviceId"]  .asString();
+    // 2012-10-1之前的版本
+    //Msg.DeviceID  = m_JsonValue["deviceId"]  .asString();
+    // after 2012-10-1
+    Msg.DeviceID  = m_JsonValue["deviceID"]  .asString();
 
     return true;
 }

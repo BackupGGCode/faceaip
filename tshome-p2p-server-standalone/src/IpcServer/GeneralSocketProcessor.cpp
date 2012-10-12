@@ -43,7 +43,7 @@ typedef struct snd_to_client_data_t
     pj_turn_srv *srv;                                       //pjsip server, real data sender
     char snd_data[sizeof(snd_buff)];                        //data
     int snd_len;                                            //data length
-    char *ip;                                               //destination ip
+    char ip[48];                                               //destination ip
     int port;                                               //destination port
 }
 snd_to_client_data;
@@ -259,7 +259,7 @@ BOOL  CGeneralSocketProcessor::RecvSocketMessage (SOCKET_MSG_NODE *pMsg, BOOL wa
 
 int sndto_client(void *data)
 {
-    snd_to_client_data *snd_data = NULL;
+//    snd_to_client_data *snd_data = NULL;
 	
 
     //__fline;
@@ -278,7 +278,6 @@ int sndto_client(void *data)
         //pop the oldest request.
 		snd_to_client_data send_data = {0};
 		int result = pop_first_snd_data(send_data);
-
 		if(result == TS_SUCCESS)
         {
             //printf("in sndto_client: pjsrv=%p, _user->addr=%s, port=%d\n",snd_data->srv, snd_data->ip, snd_data->port);
@@ -422,8 +421,9 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                         tc.srv = pj_srv;
                         tc.snd_len = sizeof(to_host_deny_connect_req_t);
                         memcpy(tc.snd_data,&snd_buff, tc.snd_len);
-                        tc.ip = sdp.addr;
-                        tc.port = sdp.port;
+                        //tc.ip = sdp.addr;
+						strcpy(tc.ip, sdp.addr);
+						tc.port = sdp.port;
                         //end
 
                         pthread_mutex_lock(&s_lock);
@@ -504,7 +504,7 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                 update_issue_req_t push_update;
                 memset(&push_update, 0, sizeof(update_issue_req_t));
                 body_len = sizeof(update_issue_req_t) - sizeof(remote_header_t);
-                init_common_header(&push_update.header, 0, TSHOME_PROTOCOL_VERSION, body_len, UPDATE_QUERY,
+                init_common_header(&push_update.header, 0, TSHOME_PROTOCOL_VERSION, body_len, UPDATE_ISSUE,
                                    REQUEST, SERVER);
                 printf("in NOTIFY_UPDATE case:step=%d, homeid=%d\n",step++, homeid);
                 std::vector<ts_user> host_list;
@@ -512,7 +512,7 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                 if(result == 0 && host_list.size() > 0)
                 {
                     //iterator each host user.
-					int i = 0;
+					size_t i = 0;
 					for(; i < host_list.size(); i++)
                     {
                         push_update.session_id = host_list[i].session_id;
@@ -533,7 +533,8 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                         tc.srv = pj_srv;
                         tc.snd_len = sizeof(update_issue_req_t);
                         memcpy(tc.snd_data,snd_buff, tc.snd_len);
-                        tc.ip = sdp.addr;
+						strcpy(tc.ip, sdp.addr);
+						//tc.ip = sdp.addr;
                         tc.port = sdp.port;
 
                         pthread_mutex_lock(&s_lock);
@@ -559,7 +560,7 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                 //iterator each mobile user.
                 if(result == 0 && mobile_list.size() > 0)
                 {
-                	int i = 0;
+                	size_t i = 0;
 					for(; i < mobile_list.size(); i++)
                     {
                         push_update.session_id = mobile_list[i].session_id;
@@ -577,7 +578,8 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                         tc.srv = pj_srv;
                         tc.snd_len = sizeof(update_issue_req_t);
                         memcpy(tc.snd_data,snd_buff, tc.snd_len);
-                        tc.ip = sdp.addr;
+                        //tc.ip = sdp.addr;
+                        strcpy(tc.ip, sdp.addr);
                         tc.port = sdp.port;
 
                         pthread_mutex_lock(&s_lock);
@@ -615,7 +617,7 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
 				int result = g_udb_mgr.home.get_hosts(homeid, user_list);
                 if(result == 0 && user_list.size() > 0)
                 {
-                	int i = 0;
+                	size_t i = 0;
 					for(; i < user_list.size(); i++)
                     {
                     	
@@ -632,7 +634,7 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                 result = g_udb_mgr.home.get_mobiles(homeid, user_list);
                 if(result == 0 && pUserFinded==NULL /*not find in get_hosts*/&& user_list.size() > 0)
                 {
-                    int i = 0;
+                    size_t i = 0;
 					for(; i < user_list.size(); i++)
                     {
                     	
@@ -695,7 +697,8 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                     tc.snd_len = sizeof(update_res_t);
                     memcpy(tc.snd_data,(const char *)snd_buff, tc.snd_len);
                     //printf("in DOWN_CONFIG 5,\n");
-                    tc.ip = sdp.addr;
+					strcpy(tc.ip, sdp.addr);
+					//tc.ip = sdp.addr;
                     tc.port = sdp.port;
 
                     pthread_mutex_lock(&s_lock);
@@ -924,7 +927,8 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                 tc.srv = pj_srv;
                 tc.snd_len = sizeof(ir_study_req_t);
                 memcpy(tc.snd_data,snd_buff, tc.snd_len);
-                tc.ip = sdp.addr;
+                //tc.ip = sdp.addr;
+                strcpy(tc.ip, sdp.addr);
                 tc.port = sdp.port;
                 //if(pthread_mutex_trylock(&s_lock) == EBUSY)
                 pthread_mutex_lock(&s_lock);
@@ -977,7 +981,8 @@ int CGeneralSocketProcessor::sendDeviceCtrl(char *ip,
 	printf("tc:snd_len=%d\n", tc.snd_len);	
     memcpy(tc.snd_data, ctrl, tc.snd_len);
 
-    tc.ip = ip;
+    //tc.ip = ip;
+    strcpy(tc.ip, ip);
     tc.port = port;
 
     pthread_mutex_lock(&s_lock);

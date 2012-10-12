@@ -118,9 +118,19 @@ struct user_info{
 	char aeskey[16];			//AES key
 	char stop_host_sender;		//stop host net sender flag
 	/** Mutex */
-	pthread_mutex_t lock;
+	//pthread_mutex_t lock;
 	char reference;				//
 	ts_home home;				//home reference
+	user_info()
+	{
+		memset(username, 0, sizeof(username));
+		memset(pwd, 0, sizeof(pwd));
+		home_id=0;
+		session_id = 0;
+		memset(aeskey, 0, sizeof(aeskey));
+		stop_host_sender = 0;
+		memset(&home, 0, sizeof(ts_home));
+	}
 };
 
 
@@ -141,7 +151,7 @@ struct tsp_hanlder_t
                                                   const unsigned int _port,
                                                   pj_uint8_t *_snd_buff,
                                                   unsigned int *snd_len,
-                                                  user_sdp **sdp);
+                                                  user_sdp *sdp);
 
         /**response handler*/
         int (*handle_response)(pj_turn_srv *srv,
@@ -155,7 +165,7 @@ struct tsp_hanlder_t
                                   const char *ip,
                                   const int ip_len,
                                   const int _port,
-                                  user_sdp **sdp);
+                                  user_sdp *sdp);
 		
 		/**destroy handler*/
         int (*handle_destroy)(pj_turn_srv *srv,
@@ -164,7 +174,7 @@ struct tsp_hanlder_t
                                   const char *ip,
                                   const int ip_len,
                                   const int _port,
-                                  user_sdp **sdp);
+                                  user_sdp *sdp);
 
         /**update sth*/
         void (*update)(int field, void *value);
@@ -219,10 +229,10 @@ struct udb_manager_t
 	struct 
 	{
 		/**select user from database*/
-		int (*select_user)(const char *username, const unsigned un_len, ts_user **user);
+		int (*select_user)(const char *username, const unsigned un_len, ts_user &user);
 
 		/**search user from temporary user hash table*/
-		ts_user *(*search_user)(const char *username, unsigned un_len);
+		ts_user *(*search_user)(const char *username, unsigned un_len, ts_user &user);
 
 		/**verify user*/
 		int (*verify_usr)(const char *username, 

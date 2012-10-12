@@ -51,6 +51,7 @@ const char * const ConfigFileSolar_1= "solar.cfg";
 const char * const ConfigFileSolar_2 = "solar.cfg.duplicate";
 
 const char * const copy_right = "@(#) Copyright (c) 2012 tiansu-china.com.  All rights reserved";
+const char * const version_string = "v 0.9.2 - ";
 const char * const desc="P_2012-7-24.Solar.1010";
 
 const char * const INSTANCE_PID_FILE = "/tmp/tshome-p2p-server.pid";
@@ -73,7 +74,7 @@ PATTERN_SINGLETON_IMPLEMENT(CSolar);
 
 CSolar::CSolar():m_TimerDBAlive("CSolar-KeepAlive-DB"), m_TimerMaintain("CSolar-Maintain")
 {
-    m_strVer = "v 2.0.0 - ";
+    m_strVer = version_string;
     m_strVer += __DATE__;
     m_strVer += " ";
     m_strVer +=__TIME__;

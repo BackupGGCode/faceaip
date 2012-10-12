@@ -729,7 +729,9 @@ public:
         DeviceID = "" ;
     }
     void dump()
-    {}
+    {
+        cout << "DeviceID:" << DeviceID << endl;
+    }
 }
 ;
 

@@ -155,7 +155,6 @@ PJTURN_SRV_OBJS +=	${PJSIP_BASEDIR_SRC}/pj/allocation.o  					\
 					${PJSIP_BASEDIR_SRC}/server/ipc_handler.o                 \
 					${PJSIP_BASEDIR_SRC}/common/c_thread.o                   \
 					${PJSIP_BASEDIR_SRC}/server/pj_server.o                  \
-					${PJSIP_BASEDIR_SRC}/common/fifoarray.o                  \
 					${PJSIP_BASEDIR_SRC}/server/tsp_hander.o                 \
 					${PJSIP_BASEDIR_SRC}/server/udb_mgr.o
 

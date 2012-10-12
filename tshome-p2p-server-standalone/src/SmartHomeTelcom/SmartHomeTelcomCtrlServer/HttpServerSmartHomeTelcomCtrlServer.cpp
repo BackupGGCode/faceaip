@@ -83,7 +83,7 @@
 #define TS_USER_PASSWORD_LEN MD5_LEN+1
 
 
-extern ts_udb_mgr *g_udb_mgr;
+extern ts_udb_mgr g_udb_mgr;
 
 
 CHttpServerSmartHomeTelcomCtrlServer::CHttpServerSmartHomeTelcomCtrlServer(ISocketHandler& h) : HttpdSocket(h)
@@ -634,6 +634,9 @@ int CHttpServerSmartHomeTelcomCtrlServer::Do_requestReportDeviceConfigParam( CTe
 }
 int CHttpServerSmartHomeTelcomCtrlServer::Do_getCtrlDeviceState( CTeHomeIF &JsonData)
 {
+	struct timeval tv_begin, tv_end;//handle takes time
+	gettimeofday(&tv_begin, NULL);
+
     LOG4CPLUS_DEBUG(LOG_SMARTHOMEJSTELCOM, "Do_getCtrlDeviceState");
     CeHomeMsg_getCtrlDeviceState_ACK Msg;
     CeHomeMsg_getCtrlDeviceState   __op;
@@ -647,14 +650,11 @@ int CHttpServerSmartHomeTelcomCtrlServer::Do_getCtrlDeviceState( CTeHomeIF &Json
     Msg.Reason= "online"; // 网关编号
 #else
 
-    ts_user *host_user = NULL;
     //search the host user.
     std::vector<ts_user> host_list;
-	int result = g_udb_mgr->jstelcom.get_hosts_by_device_id(__op.DeviceID.c_str(), host_list);
+	int result = g_udb_mgr.jstelcom.get_hosts_by_device_id(__op.DeviceID.c_str(), host_list);
     if(result == 0 && host_list.size() > 0)
     {
-        // get the only one host user in this list.
-        host_user = &(host_list[0]);
         //找到了该主机用户，则说明其在线。
         Msg.State = "1";
         Msg.Reason= "online"; // 网关编号
@@ -681,6 +681,12 @@ int CHttpServerSmartHomeTelcomCtrlServer::Do_getCtrlDeviceState( CTeHomeIF &Json
 
     Send(strSnd);
     LOG4CPLUS_DEBUG(LOG_SMARTHOMEJSTELCOM, "SendBack:" << strSnd);
+	
+	gettimeofday(&tv_end, NULL);
+	double tTime = 1000000 * (tv_end.tv_sec - tv_begin.tv_sec) + tv_end.tv_usec - tv_begin.tv_usec;
+	cout << "!!!!!!!Do_getCtrlDeviceState takes:"<< tTime << " us" << endl;
+	
+    LOG4CPLUS_DEBUG(LOG_WEBSERVICES, "Do_getCtrlDeviceState takes:"<< tTime << " us");
 
     return 0;
 }
@@ -730,6 +736,9 @@ int CHttpServerSmartHomeTelcomCtrlServer::sendDeviceCtrlMsg(char *ip,
                        const u_char value_len,
                        const int32_t session_id)
 {
+    struct timeval tv_begin, tv_end;
+    gettimeofday(&tv_begin, NULL);
+
     device_control_req ctrl;
     memset(&ctrl, 0, sizeof(device_control_req));
     int body_len = sizeof(device_control_req) - sizeof(remote_header_t);
@@ -757,12 +766,20 @@ int CHttpServerSmartHomeTelcomCtrlServer::sendDeviceCtrlMsg(char *ip,
     //	 );
 
     g_GeneralSocketProcessor.sendDeviceCtrl(ip, port, &ctrl);
+	
+	gettimeofday(&tv_end, NULL);
+	double tTime = 1000000 * (tv_end.tv_sec - tv_begin.tv_sec) + tv_end.tv_usec - tv_begin.tv_usec;;
+	//__fline
+	//cout << "!!!!!!! sendDeviceCtrlMsg takes:"<< tTime << " us" << endl;
+	
     return 0;
 }
 
 int CHttpServerSmartHomeTelcomCtrlServer::Do_controlDevice(CTeHomeIF &JsonData)
 {
-    LOG4CPLUS_DEBUG(LOG_SMARTHOMEJSTELCOM, "strURL_controlDevice:");
+	struct timeval tv_begin, tv_end;//handle takes time
+	gettimeofday(&tv_begin, NULL);
+
     CeHomeMsg_controlDevice_ACK Msg;
     CeHomeMsg_controlDevice   __op;
     CeHomeMsg_controlDevice_operate op;
@@ -777,41 +794,34 @@ int CHttpServerSmartHomeTelcomCtrlServer::Do_controlDevice(CTeHomeIF &JsonData)
 #else
 
     int vecSize = __op.m_operate.size();
-    cout << "vecSize=" << vecSize << "\n";
-    ts_user *host_user = NULL;
-    user_sdp *sdp = NULL;
+    //cout << "vecSize=" << vecSize << endl;
+    ts_user host_user;
+    user_sdp sdp;
     //search the host user.
     std::vector<ts_user> host_list;
-	int result = g_udb_mgr->jstelcom.get_hosts_by_device_id(__op.DeviceID.c_str());
+    int result = g_udb_mgr.jstelcom.get_hosts_by_device_id(__op.DeviceID.c_str(), host_list);
     if(result == 0 && host_list.size() > 0)
     {
         // get the only one host user in this list.
-        host_user = &(host_list[0]);
-    }
-    if(!host_user)
-    {
-        //主机不在线时，立即回复失败。
-        Msg.Result= "1";
-        Msg.Reason= "offline";
-    }
-    else
-    {
+        host_user = host_list[0];
+        sdp = host_user.sdpVec[0];
+
         for(int i = 0 ; i < vecSize ; i++)
         {
             op = __op.m_operate[i];
 
-            LOG4CPLUS_DEBUG(LOG_SMARTHOMEJSTELCOM, "op.operate_id:"<< op.operate_id << "op.orderId="<<op.orderId<<",op.extendpara="<<op.extendpara);
+            LOG4CPLUS_DEBUG(LOG_SMARTHOMEJSTELCOM, "NO:" << i << ", op.operate_id:"<< op.operate_id << ", op.orderId="<<op.orderId<<",op.extendpara="<<op.extendpara);
 
             //if(op.orderId == "1" && atoi(op.extendpara.c_str()) > 0)//单开，并且扩展参数是有效数字
             if(op.orderId == "1")//单开
             {
                 /*char *value = (char *)op.extendpara.c_str();
                 sendDeviceCtrlMsg(sdp->addr, sdp->port, op.operate_id.c_str(), value, strlen(value), host_user->session_id);*/
-                sendDeviceCtrlMsg(sdp->addr, sdp->port, op.operate_id.c_str(), "1", 1, host_user->session_id);
+                sendDeviceCtrlMsg(sdp.addr, sdp.port, op.operate_id.c_str(), "1", 1, host_user.session_id);
             }
             if(op.orderId == "2")//单关
             {
-                sendDeviceCtrlMsg(sdp->addr, sdp->port, op.operate_id.c_str(), "0", 1, host_user->session_id);
+                sendDeviceCtrlMsg(sdp.addr, sdp.port, op.operate_id.c_str(), "0", 1, host_user.session_id);
             }
             if(op.orderId == "4")//全开
             {
@@ -827,12 +837,21 @@ int CHttpServerSmartHomeTelcomCtrlServer::Do_controlDevice(CTeHomeIF &JsonData)
             if(op.orderId == "6" || op.orderId == "7")//加|| 减
             {
                 char *value = (char *)op.extendpara.c_str();
-                sendDeviceCtrlMsg(sdp->addr, sdp->port, op.operate_id.c_str(), value, strlen(value), host_user->session_id);
+				
+                sendDeviceCtrlMsg(sdp.addr, sdp.port, op.operate_id.c_str(), value, strlen(value), host_user.session_id);
             }
         }
         Msg.Result  = "0" ;
         Msg.Reason  = "OK" ;
     }
+    else
+    {
+        //主机不在线时，立即回复失败。
+        Msg.Result= "1";
+        Msg.Reason= "offline";
+        LOG4CPLUS_DEBUG(LOG_SMARTHOMEJSTELCOM, "offline");
+    }
+
 #endif
     // 构造返回消息
 
@@ -853,6 +872,13 @@ int CHttpServerSmartHomeTelcomCtrlServer::Do_controlDevice(CTeHomeIF &JsonData)
 
     Send(strSnd);
     LOG4CPLUS_DEBUG(LOG_SMARTHOMEJSTELCOM, "SendBack:" << strSnd);
+	
+	gettimeofday(&tv_end, NULL);
+	double tTime = 1000000 * (tv_end.tv_sec - tv_begin.tv_sec) + tv_end.tv_usec - tv_begin.tv_usec;
+	//__fline
+	cout << "!!!!!!!Do_controlDevice takes:"<< tTime << " us" << endl;
+
+    LOG4CPLUS_DEBUG(LOG_WEBSERVICES, "Do_controlDevice takes:"<< tTime << " us");
 
     return 0;
 }

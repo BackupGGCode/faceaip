@@ -202,6 +202,8 @@ PJ_DECL(pj_status_t) pj_turn_allocation_create(pj_turn_transport *transport,
  */
 PJ_DECL(void) pj_turn_allocation_destroy(pj_turn_allocation *alloc);
 
+PJ_DECL(void) pj_turn_allocation_shutdown(pj_turn_allocation *alloc);
+
 
 /**
  * Handle incoming packet from client.

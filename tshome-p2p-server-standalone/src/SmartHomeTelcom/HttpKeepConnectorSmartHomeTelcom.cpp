@@ -969,6 +969,7 @@ DBG(
     //DBG(
      cout <<  "*** ["<<page<<"] ***\n"<<SND_PROMPT<<"Send("<<poststr.size()+2<<") JSON:\n"<<TOKEN<<"\n["<<poststr<<"]\n"<<TOKEN<<"\n";
     //);
+	
     //LOG4CPLUS_INFO(LOG_SMARTHOMEJSTELCOM, "\n*** ["<<page<<"] ***\n"<<SND_PROMPT<<"Send("<<poststr.size()+2<<") JSON:\n"<<TOKEN<<"\n["<<poststr<<"]\n"<<TOKEN<<"\n");
 
     return ssPost.str().size();
