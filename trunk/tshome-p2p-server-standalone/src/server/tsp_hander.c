@@ -169,12 +169,12 @@ static int restore_host_sdp(int homeId, const char *username, unsigned u_len, us
 			{
 				if(!strcmp((const char *)host_user.sdpVec[i].client_name,(const char *)username))
 				{
-					printf("host_list[0].sdpVec[%d].flag=%c\n", i, host_list[0].sdpVec[i].flag);
+					printf("in restore_host_sdp, host_list[0].sdpVec[%d].flag=%c\n", i, host_list[0].sdpVec[i].flag);
 					host_user.sdpVec[i].flag = 's';/*single*/
 					memset(host_user.sdpVec[i].client_name, 0, sizeof(host_user.sdpVec[i].client_name));
 					//m_mutexCommunicationStatus.Enter();
 					host_list[0] = host_user;
-					printf("host_list[0].sdpVec[%d].flag=%c\n", i, host_list[0].sdpVec[i].flag);
+					printf("in restore_host_sdp, host_list[0].sdpVec[%d].flag=%c\n", i, host_list[0].sdpVec[i].flag);
 					g_udb_mgr.home.set_hosts(homeId, host_list);
 					//m_mutexCommunicationStatus.Leave();
 					if(NULL != sdp)
@@ -194,12 +194,12 @@ static int do_when_logout(const char *username, unsigned u_len, user_sdp *sdp)
 
     if(NULL != username)
     {
-        ts_user __NewUser;
-        ts_user *user = find_user(username, u_len, __NewUser);
-        if(NULL != user)
+        ts_user user;
+        ts_user *res = find_user(username, u_len, user);
+        if(NULL != res)
         {
             //method = "do_when_logout";
-            int sessionId = user->session_id;
+            int sessionId = user.session_id;
             int homeid = g_udb_mgr.mapping.get_home_id(sessionId);
 
             if(homeid == TS_INVALID)
@@ -277,8 +277,8 @@ static int handle_remote_request(pj_turn_srv *srv,
             strncpy(sdpSearial, (const char *)(rcv_buff+5), sizeof(sdpSearial)-1);
             serial = atoi(sdpSearial);
 
-        ts_user user;
-        ts_user *res = find_user(username, un_len, user);
+            ts_user user;
+            ts_user *res = find_user(username, un_len, user);
             //ts_user *user = find_user(username, un_len);
             if(NULL == res)
             {
@@ -304,7 +304,6 @@ static int handle_remote_request(pj_turn_srv *srv,
             LOG4CPLUS_DEBUG(LOG_TURN, "SDPH(" <<serial<< ") case, username=" << username << ", homeid=" <<home__id );
 
             //the new sdp.
-
             user_sdp sdp4vec;
             memset(&sdp4vec, 0,  sizeof(sdp4vec));
             memcpy(sdp4vec.addr, addr, addr_len);
@@ -312,7 +311,8 @@ static int handle_remote_request(pj_turn_srv *srv,
             memcpy(sdp4vec.sdp, rcv_buff, rcv_len);
             sdp4vec.port = port;
             sdp4vec.flag = 's';
-
+			printf("sdp4Vec.sdp=%s, addr=%s, port=%d\n", sdp4vec.sdp, sdp4vec.addr, sdp4vec.port);
+			LOG4CPLUS_DEBUG(LOG_TURN, " sdp4Vec.sdp=" << sdp4vec.sdp << ",port=" << sdp4vec.port );
             //pthread_mutex_lock(&(user->lock));
             int vecSize = user.sdpVec.size();
             if(serial >= vecSize)
@@ -332,17 +332,18 @@ static int handle_remote_request(pj_turn_srv *srv,
             int cmped = 0;//sdp是否重复
             if (vecSize > 0)
             {
-                int i = 0;
-                for(; i < vecSize; i++)
-                {
-                    if(strncasecmp(user.sdpVec[i].sdp, sdp4vec.sdp, sizeof(sdp4vec.sdp)) == 0)
+                //int i = 0;
+                //for(; i < vecSize; i++)
+                //{
+                	//printf("vecSize=%d,user.sdpVec[%d].sdp=%s\n", vecSize, i, user.sdpVec[i].sdp);
+                    if(strncasecmp(user.sdpVec[serial].sdp, sdp4vec.sdp, sizeof(sdp4vec.sdp)) == 0)
                     {
                         cmped = 1;
-                        break;
+                        //break;
                     }
-                }
+                //}
             }
-
+printf("cmped=%d\n", cmped);
             /*
               *if an user relogin, and his allocation still save in server memery, we must destroy 
               *his old allocation to free some memery and socket resource, in order to let other user
@@ -351,9 +352,18 @@ static int handle_remote_request(pj_turn_srv *srv,
             if(!cmped)
             {
                 user_sdp oldSdp = user.sdpVec[serial];
-                if(oldSdp.port != 0)
-                    pj_turn_allocation_shutdown(pj_turn_allocation_find_by_sdp(srv, &oldSdp));
-
+				printf("oldSdp.addr=%s, port=%d\n", oldSdp.addr, oldSdp.port);
+                if(oldSdp.port != 0){
+					pj_turn_allocation *oldAlloc = pj_turn_allocation_find_by_sdp(srv, &oldSdp);
+					printf("oldAlloc=%p\n", oldAlloc);
+                    pj_turn_allocation_shutdown(oldAlloc);
+                	user.reference--;
+					
+					printf("sdp4Vec.addr=%s, port=%d\n", sdp4vec.addr, sdp4vec.port);
+					pj_turn_allocation *newAlloc = pj_turn_allocation_find_by_sdp(srv, &sdp4vec);
+					printf("newAlloc=%p\n", newAlloc);
+                }
+				printf("serial=%d\n",serial);
                 user.sdpVec[serial] = sdp4vec;
                 user.reference++;
 				g_udb_mgr.tempUserMap[username] = user;
@@ -383,7 +393,6 @@ static int handle_remote_request(pj_turn_srv *srv,
 				__trip;
                 memset(&init_sdp, 0,  sizeof(init_sdp));
 				
-                // todo 
                 //写接口
                 __trip;
                 user.sdpVec.push_back(init_sdp);
@@ -428,13 +437,15 @@ static int handle_remote_request(pj_turn_srv *srv,
             if(!cmped)
             {
                 user_sdp oldSdp = user.sdpVec[0];
+				__trip;
                 if(oldSdp.port != 0){
 					__trip;
                     pj_turn_allocation_shutdown(pj_turn_allocation_find_by_sdp(srv, &oldSdp));
-					restore_host_sdp(home__id, username, un_len, sdp);
+					restore_host_sdp(home__id, username, un_len, NULL);
                 }
+				__trip;
                 user.sdpVec[0] = sdp4vec;
-                user.reference++;
+                user.reference = 1;
 				g_udb_mgr.tempUserMap[username] = user;
             }
             //pthread_mutex_unlock(&(user->lock));
@@ -651,13 +662,13 @@ g_udb_mgr.tempUserMap[username] = __NewUser;
                         //printf("%d,", snd_buff[i]);
                         //}
                         //printf("\n");
-        ts_user __NewUser;
-        ts_user *selected_user = find_user(username, un_len, __NewUser);
+                        ts_user __NewUser;
+                        ts_user *selected_user = find_user(username, un_len, __NewUser);
 
                         //ts_user *selected_user = find_user(username, un_len);//(User *)hmap_search(temp_map,username);
                         ts_user login_user;
                         //memset(&login_user, 0 ,sizeof(ts_user));
-                        //TODO				if(login_user->aeskey == null) return : no aeskey error code
+                        //				if(login_user->aeskey == null) return : no aeskey error code
                         aes_encode aes_ins2 ;
                         memset(&aes_ins2, 0, sizeof(aes_encode));
 
@@ -678,10 +689,6 @@ g_udb_mgr.tempUserMap[username] = __NewUser;
                         int result = TS_FAILED;
                         result = g_udb_mgr.user.verify_usr(login_user.username, strlen(login_user.username),
                                                            login_user.pwd, strlen(login_user.pwd));
-#ifdef DEBUG_WUJUNJIE
-
-                        result = 0;
-#endif
 
                         int session_id = selected_user->session_id;
                         int homeid = selected_user->home_id;
@@ -854,7 +861,6 @@ g_udb_mgr.tempUserMap[username] = __NewUser;
                                 if(NULL != host_user)
                                 {
                                     //printf("in case STOP_CONNECTION, host user name is  %s\n", host_user->username);
-                                    // todo wujj
                                     logined_user->stop_host_sender = STOP_HOST_SENDER_TRUE;
 									
                                     to_host_deny_connect_req_t to_host;
@@ -1168,7 +1174,7 @@ static int handle_remote_destroy(pj_turn_srv *srv,
         LOG4CPLUS_INFO(LOG_TURN, "SDP destroy:"<<username);
         int ref = user.reference;
         LOG4CPLUS_INFO(LOG_TURN, "alive sdp count:"<<ref);
-        if(user.reference == 0)
+        if(user.reference <= 0)
         {
             do_when_logout(username, un_len, sdp);
             LOG4CPLUS_INFO(LOG_TURN, "do_when_logout:"<<username);
@@ -1185,6 +1191,9 @@ static int handle_remote_destroy(pj_turn_srv *srv,
                     if (strncasecmp(p->addr, ip, ip_len) == 0 && p->port == clt_port)
                     {
                         user.sdpVec.erase(p);
+						user_sdp newSdp;
+						memset(&newSdp, 0, sizeof(user_sdp));
+						user.sdpVec.push_back(newSdp);
                         g_udb_mgr.home.save_host(user.home_id, &user);
                         break;
                     }

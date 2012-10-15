@@ -450,6 +450,8 @@ on_error:
 /* Destroy relay resource */
 static void destroy_relay(pj_turn_relay_res *relay)
 {
+__trip;
+printf("in destroy_relay, relay=%p\n", relay);
     if (relay->timer.id) {
 	pj_timer_heap_cancel(relay->allocation->server->core.timer_heap, 
 			     &relay->timer);
@@ -526,7 +528,11 @@ PJ_DECL(void) pj_turn_allocation_destroy(pj_turn_allocation *alloc)
 
 PJ_DECL(void) pj_turn_allocation_shutdown(pj_turn_allocation *alloc)
 {
-    alloc_shutdown(alloc);
+__trip;
+	printf("will shutdown alloc p=%p\n", alloc);
+	if(NULL != alloc){
+    	alloc_shutdown(alloc);
+	}
 }
 
 
@@ -580,6 +586,8 @@ pj_turn_allocation* pj_turn_allocation_find_by_sdp(pj_turn_srv *srv, user_sdp *s
     if (sdp->port == 0) {
         return NULL;
     }
+	__trip;
+	printf("in pj_turn_allocation_find_by_sdp, sdp->addr=%s, sdp->port=%d\n", sdp->addr, sdp->port);
     status = init_turn_allocation_key (&dst_key, (const char *)sdp->addr, sdp->port);
     if (status != PJ_SUCCESS) {
         return NULL;
@@ -592,13 +600,16 @@ pj_turn_allocation* pj_turn_allocation_find_by_sdp(pj_turn_srv *srv, user_sdp *s
         while (it) {
             alloc = (pj_turn_allocation *)
                     pj_hash_this (srv->tables.alloc, it);
+			printf("alloc it=%p\n", alloc);
             if(pj_sockaddr_cmp(&alloc->hkey.clt_addr, &dst_key.clt_addr) == 0)
                 break;
             it = pj_hash_next(srv->tables.alloc, it);
+			alloc = NULL;
         }
     } 
     pj_lock_release(srv->core.lock);
-
+	__trip;
+	printf("find alloc p=%p\n", alloc);
     return alloc;
 }
 
@@ -622,6 +633,8 @@ PJ_DEF(void) pj_turn_allocation_on_transport_closed( pj_turn_allocation *alloc,
  */
 static void alloc_shutdown(pj_turn_allocation *alloc)
 {
+__trip;
+printf("in alloc_shutdown(), alloc=%p\n", alloc);
     pj_time_val destroy_delay = DESTROY_DELAY;
 
     /* Work with existing schedule */
@@ -712,7 +725,7 @@ static void relay_timeout_cb(pj_timer_heap_t *heap, pj_timer_entry *e)
 				 addr, sizeof(addr));
 	addr_len = strlen(addr) + 1;
 	port = pj_sockaddr_get_port(&alloc->hkey.clt_addr);
-	user_sdp sdp = {0};
+	user_sdp sdp;
 	alloc->server->core.handler.handle_timeout(alloc->server,
 										  alloc->cred.data.static_cred.username.ptr,
 										  alloc->cred.data.static_cred.username.slen,
@@ -968,18 +981,24 @@ static void send_reply_ok_with_result (pj_turn_allocation *alloc,
 	alloc_err(alloc, "Error creating STUN success response", status);
 	return;
     }
-
+	__trip;
+	printf("alloc->relay.lifetime=%d\n",alloc->relay.lifetime);
     /* Calculate time to expiration */
     if (alloc->relay.lifetime != 0) {
+		
+		__trip;
 	pj_time_val now;
 	pj_gettimeofday(&now);
 	interval = alloc->relay.expiry.sec - now.sec;
     } else {
+    __trip;
 	interval = 0;
     }
 
     /* Add LIFETIME if this is not ChannelBind. */
     if (PJ_STUN_GET_METHOD(tdata->msg->hdr.type)!=PJ_STUN_CHANNEL_BIND_METHOD){
+		__trip;
+		printf("interval=%d\n",interval);
 	pj_stun_msg_add_uint_attr(tdata->pool, tdata->msg,
 				  PJ_STUN_ATTR_LIFETIME, interval);
 
@@ -1477,7 +1496,8 @@ static pj_status_t stun_on_rx_request(pj_stun_session *sess,
     PJ_UNUSED_ARG(src_addr_len);
 
     alloc = (pj_turn_allocation*) pj_stun_session_get_user_data(sess);
-
+__trip;
+printf("new alloc p= %p\n", alloc);
     /* Refuse to serve any request if we've been shutdown */
     if (alloc->relay.lifetime == 0) {
 	/* Reject with 437 if we're shutting down */
@@ -1519,7 +1539,7 @@ static pj_status_t stun_on_rx_request(pj_stun_session *sess,
 		addr_len = strlen(addr) + 1;
 		port = pj_sockaddr_get_port(&alloc->hkey.clt_addr);
 
-		user_sdp sdp = {0};
+		user_sdp sdp;
 		alloc->server->core.handler.handle_destroy(alloc->server,
 												  alloc->cred.data.static_cred.username.ptr,
 												  alloc->cred.data.static_cred.username.slen,
@@ -1544,8 +1564,13 @@ static pj_status_t stun_on_rx_request(pj_stun_session *sess,
 	     */
 	    
 	    /* Update lifetime */
+		
 	    if (lifetime) {
+			__trip;
+			printf("lifetime=%d\n",lifetime->value);
 			alloc->relay.lifetime = lifetime->value;
+			printf("alloc%p->relay=%p\n",alloc, &alloc->relay);
+			printf("alloc->relay.lifetime=%d\n",alloc->relay.lifetime);
 	    }
 
 	    /* Update bandwidth */
@@ -1568,11 +1593,13 @@ static pj_status_t stun_on_rx_request(pj_stun_session *sess,
 			addr_len = strlen(addr) + 1;
 			port = pj_sockaddr_get_port(src_addr);
 			
-			user_sdp sdp = {0};
-
+			user_sdp sdp;
+			memset(&sdp, 0, sizeof(user_sdp));
 			LOG4CPLUS_INFO(LOG_ALLOCATION, ">>> handle_request:"
 				<< alloc->cred.data.static_cred.username.slen << " "
 				<< data_attr->length);
+			__trip;
+			printf("alloc->relay.lifetime=%d\n",alloc->relay.lifetime);
 			alloc->server->core.handler.handle_request(alloc->server,
 												  alloc->cred.data.static_cred.username.ptr,
 												  alloc->cred.data.static_cred.username.slen,
@@ -1584,6 +1611,8 @@ static pj_status_t stun_on_rx_request(pj_stun_session *sess,
 												  result, 
 												  &result_len,
 												  &sdp);
+			__trip;
+			printf("alloc->relay.lifetime=%d\n",alloc->relay.lifetime);
 			__fline;
 			printf("sdp ip:port=%s:%d\n", sdp.addr, sdp.port);
 			pj_turn_allocation *target_alloc = pj_turn_allocation_find_by_sdp(alloc->server, &sdp);
@@ -1591,6 +1620,8 @@ static pj_status_t stun_on_rx_request(pj_stun_session *sess,
 				__trip;
 				restore_allocation(target_alloc);
 			}
+			__trip;
+			printf("alloc->relay.lifetime=%d\n",alloc->relay.lifetime);
 			LOG4CPLUS_INFO(LOG_ALLOCATION, "handle_request   -- >>>:"
 				<< alloc->cred.data.static_cred.username.slen << " "
 				<< data_attr->length << " "
