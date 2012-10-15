@@ -34,39 +34,45 @@
 extern ts_udb_mgr g_udb_mgr;
 extern pj_bool_t g_run;
 int pj_runnable;
-static u_char snd_buff[512];
+#define SEND_BUFF_SIZE 512
+//static u_char snd_buff[SEND_BUFF_SIZE];
 pj_thread_t *pt;
 
 /*pjsip data*/
 typedef struct snd_to_client_data_t
 {
     pj_turn_srv *srv;                                       //pjsip server, real data sender
-    char snd_data[sizeof(snd_buff)];                        //data
+    char snd_data[SEND_BUFF_SIZE];                        //data
     int snd_len;                                            //data length
     char ip[48];                                               //destination ip
     int port;                                               //destination port
 }
 snd_to_client_data;
 
+CEZMutex g_mutexFor_snd_data_buffer;
 std::vector<snd_to_client_data> snd_data_buffer;
-static pthread_mutex_t s_lock = PTHREAD_MUTEX_INITIALIZER;      //use in pt
+//static pthread_mutex_t s_lock = PTHREAD_MUTEX_INITIALIZER;      //use in pt
 //static pthread_cond_t s_cond = PTHREAD_COND_INITIALIZER;        //use in pt
 sem_t sem_sndto_client;
 
 static int add_snd_data(snd_to_client_data &data)
 {
-	snd_data_buffer.push_back(data);
-	return TS_SUCCESS;
+    CEZGuard guard(g_mutexFor_snd_data_buffer);
+
+    snd_data_buffer.push_back(data);
+    return TS_SUCCESS;
 }
 
 static int pop_first_snd_data(snd_to_client_data &data)
 {
-	if(snd_data_buffer.size() <= 0){
-		return TS_FAILED;
-	}
-	data = snd_data_buffer[0];
-	snd_data_buffer.erase(snd_data_buffer.begin());
-	return TS_SUCCESS;
+    CEZGuard guard(g_mutexFor_snd_data_buffer);
+    if(snd_data_buffer.size() <= 0)
+    {
+        return TS_FAILED;
+    }
+    data = snd_data_buffer[0];
+    snd_data_buffer.erase(snd_data_buffer.begin());
+    return TS_SUCCESS;
 }
 
 
@@ -259,8 +265,8 @@ BOOL  CGeneralSocketProcessor::RecvSocketMessage (SOCKET_MSG_NODE *pMsg, BOOL wa
 
 int sndto_client(void *data)
 {
-//    snd_to_client_data *snd_data = NULL;
-	
+    //    snd_to_client_data *snd_data = NULL;
+
 
     //__fline;
     LOG4CPLUS_INFO(LOG_IPC, "start sndto_client");
@@ -273,12 +279,12 @@ int sndto_client(void *data)
         //__fline;
         //printf("sndto_client get a msg\n");
 
-        pthread_mutex_lock(&s_lock);
+        //pthread_mutex_lock(&s_lock);
 
         //pop the oldest request.
-		snd_to_client_data send_data = {0};
-		int result = pop_first_snd_data(send_data);
-		if(result == TS_SUCCESS)
+        snd_to_client_data send_data = {0};
+        int result = pop_first_snd_data(send_data);
+        if(result == TS_SUCCESS)
         {
             //printf("in sndto_client: pjsrv=%p, _user->addr=%s, port=%d\n",snd_data->srv, snd_data->ip, snd_data->port);
             LOG4CPLUS_INFO(LOG_IPC, "send_data_to_client "<<send_data.ip << ":"<<send_data.port);
@@ -290,7 +296,13 @@ int sndto_client(void *data)
                                 send_data.port);
             //usleep(50*1000);
         }
-        pthread_mutex_unlock(&s_lock);
+        else
+        {
+            // impossble
+            LOG4CPLUS_ERROR(LOG_IPC, "pop_first_snd_data failed.");
+            usleep(50*1000);
+        }
+        //pthread_mutex_unlock(&s_lock);
     }
     pj_thread_join(pt);
     pj_thread_destroy(pt);
@@ -307,6 +319,8 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
 {
     // dbg code, echo data only
     //return Send2Webs(iMsg, pData, lDataLen);
+    u_char snd_buff[SEND_BUFF_SIZE];
+    memset(snd_buff, 0, SEND_BUFF_SIZE);
 
     if (lDataLen<sizeof(IPC_HEADER))
     {
@@ -383,7 +397,7 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                 ts_user *host_user = NULL;
                 //search the owner host user.
                 std::vector<ts_user> host_list;
-				int result = g_udb_mgr.home.get_hosts(homeid, host_list);
+                int result = g_udb_mgr.home.get_hosts(homeid, host_list);
                 if(result == 0 && host_list.size() > 0)
                 {
                     // get the only one host user in this list.
@@ -408,13 +422,13 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                         fill_stophostnet_req_to_host(snd_buff, &to_host);
                         printf("in HOST_SERV_REQ case:3\n");
                         //get a SDP object of the host user.
-						std::vector<user_sdp> sdps = host_user->sdpVec;
+                        std::vector<user_sdp> sdps = host_user->sdpVec;
 
                         if(sdps.size() <= 0)
                         {
                             break;
                         }
-						user_sdp sdp = sdps[0];
+                        user_sdp sdp = sdps[0];
                         //begin new a snd_to_client_data object
                         snd_to_client_data tc;
                         memset(&tc, 0, sizeof(snd_to_client_data));
@@ -422,18 +436,18 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                         tc.snd_len = sizeof(to_host_deny_connect_req_t);
                         memcpy(tc.snd_data,&snd_buff, tc.snd_len);
                         //tc.ip = sdp.addr;
-						strcpy(tc.ip, sdp.addr);
-						tc.port = sdp.port;
+                        strcpy(tc.ip, sdp.addr);
+                        tc.port = sdp.port;
                         //end
 
-                        pthread_mutex_lock(&s_lock);
+                        //pthread_mutex_lock(&s_lock);
                         printf("in HOST_SERV_REQ case:5\n");
                         add_snd_data(tc);
                         printf("in HOST_SERV_REQ case:6\n");
                         //if(snd_data_buff.used_size == 1){
                         //	pthread_cond_signal(&s_cond);
                         //}
-                        pthread_mutex_unlock(&s_lock);
+                        //pthread_mutex_unlock(&s_lock);
 
                         sem_post(&sem_sndto_client);
                         //send over
@@ -508,12 +522,12 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                                    REQUEST, SERVER);
                 printf("in NOTIFY_UPDATE case:step=%d, homeid=%d\n",step++, homeid);
                 std::vector<ts_user> host_list;
-				int result = g_udb_mgr.home.get_hosts(homeid, host_list);
+                int result = g_udb_mgr.home.get_hosts(homeid, host_list);
                 if(result == 0 && host_list.size() > 0)
                 {
                     //iterator each host user.
-					size_t i = 0;
-					for(; i < host_list.size(); i++)
+                    size_t i = 0;
+                    for(; i < host_list.size(); i++)
                     {
                         push_update.session_id = host_list[i].session_id;
                         fill_push_update(snd_buff, &push_update);
@@ -526,23 +540,23 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                         {
                             continue;
                         }
-						user_sdp sdp = sdps[0];
+                        user_sdp sdp = sdps[0];
                         //new a request to host client
                         snd_to_client_data tc;
                         memset(&tc, 0, sizeof(snd_to_client_data));
                         tc.srv = pj_srv;
                         tc.snd_len = sizeof(update_issue_req_t);
                         memcpy(tc.snd_data,snd_buff, tc.snd_len);
-						strcpy(tc.ip, sdp.addr);
-						//tc.ip = sdp.addr;
+                        strcpy(tc.ip, sdp.addr);
+                        //tc.ip = sdp.addr;
                         tc.port = sdp.port;
 
-                        pthread_mutex_lock(&s_lock);
+                        //pthread_mutex_lock(&s_lock);
                         add_snd_data(tc);
                         //if(snd_data_buff.used_size == 1){
                         //	pthread_cond_signal(&s_cond);
                         //}
-                        pthread_mutex_unlock(&s_lock);
+                        //pthread_mutex_unlock(&s_lock);
                         sem_post(&sem_sndto_client);
                         memset(snd_buff, 0, sizeof(snd_buff));
 
@@ -556,12 +570,12 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
 
                 printf("in NOTIFY_UPDATE case: step=%d\n",step++);
                 std::vector<ts_user> mobile_list;
-				result = g_udb_mgr.home.get_mobiles(homeid, mobile_list);
+                result = g_udb_mgr.home.get_mobiles(homeid, mobile_list);
                 //iterator each mobile user.
                 if(result == 0 && mobile_list.size() > 0)
                 {
-                	size_t i = 0;
-					for(; i < mobile_list.size(); i++)
+                    size_t i = 0;
+                    for(; i < mobile_list.size(); i++)
                     {
                         push_update.session_id = mobile_list[i].session_id;
                         fill_push_update(snd_buff, &push_update);
@@ -572,7 +586,7 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                         {
                             continue;
                         }
-						user_sdp sdp = sdps[0];
+                        user_sdp sdp = sdps[0];
                         snd_to_client_data tc;
                         memset(&tc, 0, sizeof(snd_to_client_data));
                         tc.srv = pj_srv;
@@ -582,12 +596,12 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                         strcpy(tc.ip, sdp.addr);
                         tc.port = sdp.port;
 
-                        pthread_mutex_lock(&s_lock);
-						add_snd_data(tc);
+                        //pthread_mutex_lock(&s_lock);
+                        add_snd_data(tc);
                         //if(snd_data_buff.used_size == 1){
                         //	pthread_cond_signal(&s_cond);
                         //}
-                        pthread_mutex_unlock(&s_lock);
+                        //pthread_mutex_unlock(&s_lock);
                         sem_post(&sem_sndto_client);
                         memset(snd_buff, 0, sizeof(snd_buff));
                     }
@@ -614,13 +628,13 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
 
                 ts_user *pUserFinded = NULL;
                 std::vector<ts_user> user_list;
-				int result = g_udb_mgr.home.get_hosts(homeid, user_list);
+                int result = g_udb_mgr.home.get_hosts(homeid, user_list);
                 if(result == 0 && user_list.size() > 0)
                 {
-                	size_t i = 0;
-					for(; i < user_list.size(); i++)
+                    size_t i = 0;
+                    for(; i < user_list.size(); i++)
                     {
-                    	
+
                         if(user_list[i].session_id == sessionid)
                         {
                             //printf("in DOWN_CONFIG 21, user->userName=%s,user->pwd=%s,user->sessionid=%d,user->homeid=%d\n",user->username,user->pwd,user->session_id,user->home_id);
@@ -635,9 +649,9 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                 if(result == 0 && pUserFinded==NULL /*not find in get_hosts*/&& user_list.size() > 0)
                 {
                     size_t i = 0;
-					for(; i < user_list.size(); i++)
+                    for(; i < user_list.size(); i++)
                     {
-                    	
+
                         if(user_list[i].session_id == sessionid)
                         {
                             //printf("in DOWN_CONFIG 21, user->userName=%s,user->pwd=%s,user->sessionid=%d,user->homeid=%d\n",user->username,user->pwd,user->session_id,user->home_id);
@@ -682,13 +696,13 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
 
                     //printf("in DOWN_CONFIG 40,\n");
 
-                   	std::vector<user_sdp> sdps = pUserFinded->sdpVec;
+                    std::vector<user_sdp> sdps = pUserFinded->sdpVec;
 
                     if(sdps.size() <= 0)
                     {
                         break;
                     }
-					user_sdp sdp = sdps[0];
+                    user_sdp sdp = sdps[0];
 
                     //printf("in DOWN_CONFIG 44,\n");
                     snd_to_client_data tc;
@@ -697,17 +711,17 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                     tc.snd_len = sizeof(update_res_t);
                     memcpy(tc.snd_data,(const char *)snd_buff, tc.snd_len);
                     //printf("in DOWN_CONFIG 5,\n");
-					strcpy(tc.ip, sdp.addr);
-					//tc.ip = sdp.addr;
+                    strcpy(tc.ip, sdp.addr);
+                    //tc.ip = sdp.addr;
                     tc.port = sdp.port;
 
-                    pthread_mutex_lock(&s_lock);
-					add_snd_data(tc);
-					//printf("in DOWN_CONFIG 6,\n");
+                    //pthread_mutex_lock(&s_lock);
+                    add_snd_data(tc);
+                    //printf("in DOWN_CONFIG 6,\n");
                     //if(snd_data_buff.used_size == 1){
                     //	pthread_cond_signal(&s_cond);
                     //}
-                    pthread_mutex_unlock(&s_lock);
+                    //pthread_mutex_unlock(&s_lock);
                     sem_post(&sem_sndto_client);
                     //	}
                     memset(snd_buff, 0, sizeof(snd_buff));
@@ -774,10 +788,12 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
         case CTRL_UDPSYS:
         {
             LOG4CPLUS_INFO(LOG_IPC, "CTRL_UDPSYS");
-#if 1			
+#if 1
+
             LOG4CPLUS_INFO(LOG_IPC, "not support, break now ...");
             break;
 #else
+
             IPC_DG_CTRL_UDPSYS *ctrl = (IPC_DG_CTRL_UDPSYS *)structs;
             if(header->type == IPC_REQUEST)
             {
@@ -853,6 +869,7 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
             }
             break;
 #endif
+
         }
         case INFRARED_LEARN:
         {
@@ -869,7 +886,7 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                 int reportid = learn_req->header.searilNum;
                 ts_user *host_user = NULL;
                 std::vector<ts_user> host_list;
-				int result = g_udb_mgr.home.get_hosts(homeid, host_list);
+                int result = g_udb_mgr.home.get_hosts(homeid, host_list);
                 //printf("in INFRARED_LEARN case: 0 homeId=%d\n",homeid);
                 LOG4CPLUS_INFO(LOG_IPC, "handle INFRARED_LEARN homeid:" << homeid);
                 if(result == 0 && host_list.size() > 0)
@@ -917,8 +934,8 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                 {
                     break;
                 }
-				user_sdp sdp = sdps[0];
-				
+                user_sdp sdp = sdps[0];
+
                 printf("in INFRARED_LEARN case: 2\n");
                 fill_wifictrl_req(snd_buff, &study_req);
                 printf("in INFRARED_LEARN case: 3 pjsrv=%p, host_user->addr=%s, port=%d\n",pj_srv, sdp.addr, sdp.port);
@@ -931,14 +948,14 @@ int CGeneralSocketProcessor::IpcHandler(unsigned int	 iMsg,Socket *pSocket, cons
                 strcpy(tc.ip, sdp.addr);
                 tc.port = sdp.port;
                 //if(pthread_mutex_trylock(&s_lock) == EBUSY)
-                pthread_mutex_lock(&s_lock);
-				add_snd_data(tc);
-				//if(snd_data_buff.used_size == 1){
+                //pthread_mutex_lock(&s_lock);
+                add_snd_data(tc);
+                //if(snd_data_buff.used_size == 1){
                 //	pthread_cond_signal(&s_cond);
                 //}
-                pthread_mutex_unlock(&s_lock);
+                //pthread_mutex_unlock(&s_lock);
                 sem_post(&sem_sndto_client);
-                memset(snd_buff, 0, sizeof(snd_buff));
+                //memset(snd_buff, 0, sizeof(snd_buff));
             }
             break;
         }
@@ -969,26 +986,26 @@ ipc_handler * CGeneralSocketProcessor::GetIPC_hander()
     return &m_pHandler;
 }
 int CGeneralSocketProcessor::sendDeviceCtrl(char *ip,
-												const int port,
-												device_control_req *ctrl)
+        const int port,
+        device_control_req *ctrl)
 {
 
-	printf("ctrl:cmd_type=%d,data=%d, body_len=%d\n", ctrl->read_write, ctrl->data, ctrl->header.length);
+    printf("ctrl:cmd_type=%d,data=%d, body_len=%d\n", ctrl->read_write, ctrl->data, ctrl->header.length);
     snd_to_client_data tc;
     memset(&tc, 0, sizeof(snd_to_client_data));
     tc.srv = GetPJ_server();
     tc.snd_len = sizeof(device_control_req);
-	printf("tc:snd_len=%d\n", tc.snd_len);	
+    printf("tc:snd_len=%d\n", tc.snd_len);
     memcpy(tc.snd_data, ctrl, tc.snd_len);
 
     //tc.ip = ip;
     strcpy(tc.ip, ip);
     tc.port = port;
 
-    pthread_mutex_lock(&s_lock);
-	add_snd_data(tc);
+    //pthread_mutex_lock(&s_lock);
+    add_snd_data(tc);
 
-    pthread_mutex_unlock(&s_lock);
+    //pthread_mutex_unlock(&s_lock);
     sem_post(&sem_sndto_client);
     return 0;
 }
