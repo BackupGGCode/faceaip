@@ -96,25 +96,25 @@ CFLAGS += -DUSE_GENERALCONSOLE_OVERTCP #远程调试接口
 OBJS_GENERALAGENT += \
 		${PJSIP_BASEDIR_SRC}/IpcServer/GeneralConsoleOverTcp.o
 
-##如果编译电信版本， 请打开下列宏
-#CFLAGS += -DSMARTHOME_AGENT_JSTELECOM
-#OBJS_CONFIGS	+= \
-#		${PJSIP_BASEDIR_SRC}/SmartHomeTelcom/TeHomeIF.o		\
-#		${PJSIP_BASEDIR_SRC}/Configs/ConfigSmartHomeTelcom.o 
-#######################################################################################################
-###电信http连接器 需打开SMARTHOME_AGENT_JSTELECOM
-#CFLAGS += -DUSE_HTTPKEEPCONNECTORSMARTHOME
-#OBJS_GENERALAGENT += \
-#		${PJSIP_BASEDIR_SRC}/SmartHomeTelcom/AgentSmartHomeTelcom.o    \
-#		${PJSIP_BASEDIR_SRC}/SmartHomeTelcom/HttpKeepConnectorSmartHomeTelcom.o	\
-#		${PJSIP_BASEDIR_SRC}/SmartHomeTelcom/HandlerSmartHomeTelcom.o
-#######################################################################################################
-###控制服务器 需打开SMARTHOME_AGENT_JSTELECOM， 但是不依赖USE_HTTPKEEPCONNECTORSMARTHOME
-#CFLAGS += -DUSE_HTTPSERVERSMARTHOMETELCOMCTRLSERVER
-#OBJS_GENERALAGENT += \
-#		${PJSIP_BASEDIR_SRC}/SmartHomeTelcom/SmartHomeTelcomCtrlServer/AgentSmartHomeTelcomCtrlServer.o\
-#		${PJSIP_BASEDIR_SRC}/SmartHomeTelcom/SmartHomeTelcomCtrlServer/HandlerSmartHomeTelcomCtrlServer.o\
-#		${PJSIP_BASEDIR_SRC}/SmartHomeTelcom/SmartHomeTelcomCtrlServer/HttpServerSmartHomeTelcomCtrlServer.o
+#如果编译电信版本， 请打开下列宏
+CFLAGS += -DSMARTHOME_AGENT_JSTELECOM
+OBJS_CONFIGS	+= \
+		${PJSIP_BASEDIR_SRC}/SmartHomeTelcom/TeHomeIF.o		\
+		${PJSIP_BASEDIR_SRC}/Configs/ConfigSmartHomeTelcom.o 
+######################################################################################################
+##电信http连接器 需打开SMARTHOME_AGENT_JSTELECOM
+CFLAGS += -DUSE_HTTPKEEPCONNECTORSMARTHOME
+OBJS_GENERALAGENT += \
+		${PJSIP_BASEDIR_SRC}/SmartHomeTelcom/AgentSmartHomeTelcom.o    \
+		${PJSIP_BASEDIR_SRC}/SmartHomeTelcom/HttpKeepConnectorSmartHomeTelcom.o	\
+		${PJSIP_BASEDIR_SRC}/SmartHomeTelcom/HandlerSmartHomeTelcom.o
+######################################################################################################
+##控制服务器 需打开SMARTHOME_AGENT_JSTELECOM， 但是不依赖USE_HTTPKEEPCONNECTORSMARTHOME
+CFLAGS += -DUSE_HTTPSERVERSMARTHOMETELCOMCTRLSERVER
+OBJS_GENERALAGENT += \
+		${PJSIP_BASEDIR_SRC}/SmartHomeTelcom/SmartHomeTelcomCtrlServer/AgentSmartHomeTelcomCtrlServer.o\
+		${PJSIP_BASEDIR_SRC}/SmartHomeTelcom/SmartHomeTelcomCtrlServer/HandlerSmartHomeTelcomCtrlServer.o\
+		${PJSIP_BASEDIR_SRC}/SmartHomeTelcom/SmartHomeTelcomCtrlServer/HttpServerSmartHomeTelcomCtrlServer.o
 
 
 CFLAGS+=-I${PJSIP_BASEDIR_LIB}/platform/log4cplus-linux-x86-32/include
