@@ -164,4 +164,4 @@ tar:	clean
 	$(CPP) -c $(CFLAGS) $< -o $@
 
 clean:
-	rm -f $(DIST) $(OBJS_MAINTHREAD_P) $(OBJS_MULTITHREAD_P)
+	rm -f $(DIST) $(OBJS_MAINTHREAD_P) $(OBJS_MULTITHREAD_P) $(GENERALAGENT_BASEDIR_SRC)/*.d

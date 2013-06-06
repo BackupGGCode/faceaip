@@ -500,7 +500,7 @@ void CGeneralAgent::SetDefaultConfig()
 #endif
 #ifdef USE_GENERALAGENTTCPSOCKETCONNECTOR
 
-    for (int ii=0; ii<6; ii++)
+    //for (int ii=0; ii<6; ii++)// dbg only
     {
         AddSubHost(DEFAULT_NEXT_HOST, (unsigned short)(DEFAULT_NEXT_HOST_PORT));
     }
