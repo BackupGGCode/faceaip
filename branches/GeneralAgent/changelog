@@ -1,0 +1,15 @@
+diff for next release always available @
+http://www.ezlibs.com/GeneralAgent/latest_diff.html
+
+1.3.0
+--------
+Add configs support.
+
+1.2.0
+--------
+Add http server and client agent.
+
+1.0.0
+--------
+Support TCP/UDP server and client agent.
+
