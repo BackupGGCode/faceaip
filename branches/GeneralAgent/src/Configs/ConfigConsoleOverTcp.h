@@ -1,25 +1,26 @@
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*
- * ConfigTcpSocketServer.h - _explain_
+ * ConfigConsoleOverTcp.h - _explain_
  *
  * Copyright (C) 2013 FaceMetro.com, All Rights Reserved.
  *
- * $Id: ConfigTcpSocketServer.h 5884 2013-06-05 05:11:14Z WuJunjie $
+ * $Id: ConfigConsoleOverTcp.h 5884 2013-06-07 11:28:25Z WuJunjie $
  *
  *  Explain:
  *     -explain-
  *
  *  Update:
- *     2013-06-05 05:11:14  Create
+ *     2013-06-07 11:28:25  Create
  */
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
-#ifndef __ConfigTcpSocketServer_H__
-#define __ConfigTcpSocketServer_H__
+
+#ifndef __ConfigConsoleOverTcp_H__
+#define __ConfigConsoleOverTcp_H__
 
 #include "ConfigBase.h"
 //!	
-typedef struct tagConfigTcpSocketServer
+typedef struct tagConfigConsoleOverTcp
 {
     int SPort;// 端口
  
@@ -29,14 +30,11 @@ typedef struct tagConfigTcpSocketServer
     int CheckPeriod;
     // 超时时间 
     int PeerTimeout;
-
-// 服务名称
-    std::string strSName;
 }
-ConfigTcpSocketServer;
+ConfigConsoleOverTcp;
 
 //1 -结构数目
 //4 -观察者最大数目
-typedef TConfig<ConfigTcpSocketServer, 1, 4> CConfigTcpSocketServer;
+typedef TConfig<ConfigConsoleOverTcp, 1, 4> CConfigConsoleOverTcp;
 
-#endif //__ConfigTcpSocketServer_H__
+#endif //__ConfigConsoleOverTcp_H__

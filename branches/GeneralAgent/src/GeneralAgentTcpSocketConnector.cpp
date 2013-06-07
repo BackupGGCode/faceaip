@@ -23,6 +23,7 @@ CGeneralAgentTcpSocketConnector::CGeneralAgentTcpSocketConnector(ISocketHandler&
 	, time_t Timeout
         , bool bReconn)
         :CGeneralAgentTcpSocket(h, strSocketName)
+        , m_strSocketName(strSocketName)
         ,m_b_connected(false)
 {
     // initial connection timeout setting

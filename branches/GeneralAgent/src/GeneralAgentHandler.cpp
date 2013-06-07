@@ -77,13 +77,14 @@ void GeneralAgentHandler::List(TcpSocket *sendto)
         Socket *pCGeneralAgentUdpSocket = NULL;
 #endif
 
-        if (p->GetRemotePort()<=0 || !pCGeneralAgentUdpSocket)
+        if (p->GetRemotePort()<=0 || pCGeneralAgentUdpSocket)
         {
+        //__trip;
             continue;
         }
 
         tprintf(sendto, "%-3d %15s:%-5d", ii, p -> GetRemoteAddress().c_str(),p -> GetRemotePort());
-        tprintf(sendto, "  %9s  %s", p -> Ready() ? "Ready" : "NOT Ready", p->GetSockName().c_str());
+        tprintf(sendto, "  %9s  %s %s", p -> Ready() ? "Ready" : "NOT Ready", p->GetSockName().c_str(), p -> IsConnected() ? "Conned" : "NOT Conned");
 #if 0
 
         CGeneralAgentTcpSocketServer *pServer = dynamic_cast<CGeneralAgentTcpSocketServer *>(p);

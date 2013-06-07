@@ -45,13 +45,19 @@ public:
 
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 #include "ConfigGeneral.h"
+
 #include "ConfigTcpSocketServer.h"
+#include "ConfigTcpSocketConnector.h"
+#include "ConfigConsoleOverTcp.h"
+
 #include "ConfigDB.h"
 #include "ConfigWebService.h"
 
 typedef enum __cfg_index_t {
     CFG_IDX_GENERAL =  0,	// 普通
-    CFG_IDX_TcpSocketServer,				// 数据库配置
+    CFG_IDX_TcpSocketServer,				// TcpSocketServer 配置
+    CFG_IDX_TcpSocketConnector,				// TcpSocketConnector 配置
+    CFG_IDX_ConsoleOverTcp,				// ConsoleOverTcp 配置
     CFG_IDX_DB,				// 数据库配置
     CFG_IDX_MY_WEBSERVICE,				// 
     CFG_IDX_ALL,			// 实际没有这种配置， 便于恢复全部等用
@@ -59,6 +65,8 @@ typedef enum __cfg_index_t {
 
 #define CFG_NAME_GENERAL "General"
 #define CFG_NAME_TcpSocketServer "TcpSocketServer"
+#define CFG_NAME_TcpSocketConnector "TcpSocketConnector"
+#define CFG_NAME_ConsoleOverTcp "ConsoleOverTcp"
 #define CFG_NAME_DB "DB"
 #define CFG_NAME_MY_WEBSERVICE "MY_WEBSERVICE"
 
@@ -70,7 +78,11 @@ private:
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
     //各个子配置
     CConfigGeneral		m_configGeneral;	/*!< 普通配置 */
+    
     CConfigTcpSocketServer			m_configTcpSocketServer;	/*!< dsd */
+    CConfigTcpSocketConnector			m_configTcpSocketConnector;	/*!< dsd */
+    CConfigConsoleOverTcp			m_configConsoleOverTcp;	/*!< dsd */
+    
     CConfigDB			m_configDB;	/*!< dsd */
     CConfigWebService			m_configWebService;	/*!< WebService */
 

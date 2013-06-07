@@ -124,6 +124,8 @@ CGeneralAgent::CGeneralAgent():CEZThread("GeneralAgent", TP_DEFAULT, 10)
 #endif
 
     ///////////////////////////////////////////////
+    m_iRunPeriod = 0;
+    m_ttStartTime = time(NULL);
 }
 CGeneralAgent::~CGeneralAgent()
 {
@@ -187,6 +189,11 @@ void CGeneralAgent::AddSubHttpHost(std::string strHost, int nPort, std::string s
 
 int CGeneralAgent::Send2Socket(std::string strServerName, const char *pData, size_t Len)
 {
+    if (m_pHandlerGeneralAgent==NULL)
+    {
+        return -1;
+    }
+
     Socket *p = m_pHandlerGeneralAgent->GetSocketByName(strServerName);
 
     if (p)
@@ -200,6 +207,17 @@ int CGeneralAgent::Send2Socket(std::string strServerName, const char *pData, siz
     }
 
     return 0;
+}
+
+Socket * CGeneralAgent::GetSocketByName(std::string strServerName)
+{
+    if (m_pHandlerGeneralAgent==NULL)
+    {
+    __trip;
+        return NULL;
+    }
+
+    return m_pHandlerGeneralAgent->GetSocketByName(strServerName);
 }
 
 int CGeneralAgent::ConnectorCreate()
@@ -239,25 +257,35 @@ int CGeneralAgent::ConnectorCreate()
     for (unsigned int ii=0; ii<m_ConfigGeneralAgent.Peer.size(); ii++)
     {
         CGeneralAgentTcpSocketConnector *_pConnector = new CGeneralAgentTcpSocketConnector(*m_pHandlerGeneralAgent
-			, m_ConfigGeneralAgent.Peer[ii].strServerName
-			, m_ConfigGeneralAgent.Peer[ii].iConnTimeOut
-			, m_ConfigGeneralAgent.Peer[ii].bEnableRecon);
+                , m_ConfigGeneralAgent.Peer[ii].strServerName
+                , m_ConfigGeneralAgent.Peer[ii].iConnTimeOut
+                , m_ConfigGeneralAgent.Peer[ii].bEnableRecon);
         if (_pConnector)
         {
+            //                            DEB_CODE(
+            printf("Connector[%s]:%d Host--%s:%d Open "
+                   , m_ConfigGeneralAgent.Peer[ii].strServerName.c_str()
+                   , ii
+                   , m_ConfigGeneralAgent.Peer[ii].strHost.c_str()
+                   , m_ConfigGeneralAgent.Peer[ii].Port);
+            //			);
             bool bRet = _pConnector->Open(m_ConfigGeneralAgent.Peer[ii].strHost.c_str(), m_ConfigGeneralAgent.Peer[ii].Port);
             if (bRet)
             {
-                printf("Connector:%d %s:%d Open\n"
-                       , ii
-                       , m_ConfigGeneralAgent.Peer[ii].strHost.c_str()
-                       , m_ConfigGeneralAgent.Peer[ii].Port);
+                //                            DEB_CODE(
+                printf("Succeeded.\n");
+                //			);
 
                 m_pHandlerGeneralAgent->Add(_pConnector);
             }
             else
             {
+                //                 DEB_CODE(
+                printf("Failed.\n");
+                //		);
                 __trip;
                 // 失败处理
+                delete _pConnector;
             }
         }
         else
@@ -450,31 +478,55 @@ BOOL CGeneralAgent::Start(GENERALAGENTCFG_T *pConfig)
     {
         return TRUE;
     }
-    
+
     if (pConfig)
     {
-    	//__trip;
+        //__trip;
         m_ConfigGeneralAgent = *pConfig;
     }
     else
     {
-    #ifdef USE_EZCONFIG
+#ifdef USE_EZCONFIG
         // 调试的时候使用默认参数
-    	__fline;
-    	printf("SetDefaultConfig\n");
+        __fline;
+        printf("SetDefaultConfig\n");
 
         SetDefaultConfig();
 
-    CConfigGeneral __cfgGeneral;
-    __cfgGeneral.update();
-    m_ConfigGeneralAgent.ConsoleOverTcpPort = __cfgGeneral.getConfig().portConsoleOverTcp;
+        CConfigGeneral __cfgGeneral;
+        __cfgGeneral.update();
+        m_ConfigGeneralAgent.ConsoleOverTcpPort = __cfgGeneral.getConfig().portConsoleOverTcp;
+
+#ifdef USE_GENERALAGENTTCPSOCKETSERVER
+
+        CConfigTcpSocketServer __cfgTcpSocketServer;
+        __cfgTcpSocketServer.update();
+        SetGeneralAgent(__cfgTcpSocketServer.getConfig().SPort);
+#endif
+
+        CConfigTcpSocketConnector __cfgTcpSocketConnector;
+        __cfgTcpSocketConnector.update();
+
+#ifdef USE_GENERALAGENTTCPSOCKETCONNECTOR
+
+        GENERALSERVERCFG_T __peer;
+        __peer.Port = __cfgTcpSocketConnector.getConfig().iSMSPort;
+
+        __peer.strHost = __cfgTcpSocketConnector.getConfig().strSMSHost;
+        __peer.strServerName = __cfgTcpSocketConnector.getConfig().strSMSName;
+
+        m_ConfigGeneralAgent.Peer.clear();
+        m_ConfigGeneralAgent.Peer.push_back(__peer);
+#endif // USE_GENERALAGENTTCPSOCKETCONNECTOR
+
 #else
         // 调试的时候使用默认参数
-    	__fline;
-    	printf("SetDefaultConfig\n");
+        __fline;
+        printf("SetDefaultConfig\n");
 
         SetDefaultConfig();
 #endif //USE_EZCONFIG
+
     }
 
     ConnectorCreate();
@@ -487,6 +539,13 @@ BOOL CGeneralAgent::Start(GENERALAGENTCFG_T *pConfig)
     int ret = CreateThread();
 
     ARG_USED(ret);
+	m_TimerMaintain.Start(this
+	                                , (TIMERPROC)&CGeneralAgent::TimerProcMaintain
+	                                , 0
+	                                , 1 * 1000 /*每秒执行一次，请勿修改*/
+	                                , 0
+	                                , 10*1000
+	                               );
 
     return TRUE;
 }
@@ -495,6 +554,23 @@ BOOL CGeneralAgent::Stop()
 {
     return TRUE;
 }
+
+void CGeneralAgent::TimerProcMaintain()
+{
+    // 为了计数准确，不依赖系统时间，自己维护
+    m_iRunPeriod ++;
+}
+
+unsigned int CGeneralAgent::GetRunPeriod()
+{
+    return m_iRunPeriod;
+}
+
+time_t CGeneralAgent::GetStartTime()
+{
+    return m_ttStartTime;
+}
+
 
 void CGeneralAgent::SetDefaultConfig()
 {
@@ -561,19 +637,19 @@ void CGeneralAgent::ThreadProc()
 
 void CGeneralAgent::Initialize(int argc, char * argv[])
 {
-//    ShowVersion();
-//    //SetPlatform();
-//
-//    g_TimerManager.Start();
-//    g_ThreadManager.RegisterMainThread(ThreadGetID());
-//
-//    //g_Config.useDoubleCfgFile(1);
-//    g_Config.initialize(ConfigFileSolar_1, ConfigFileSolar_2);
+    //    ShowVersion();
+    //    //SetPlatform();
+    //
+    //    g_TimerManager.Start();
+    //    g_ThreadManager.RegisterMainThread(ThreadGetID());
+    //
+    //    //g_Config.useDoubleCfgFile(1);
+    //    g_Config.initialize(ConfigFileSolar_1, ConfigFileSolar_2);
     InitializeLogs();
-    
-        LOG4CPLUS_INFO(LOG_SOLAR, "Starting(" << "CGeneralAgent::Initialize" << ") ...");
 
-//    g_Config.saveFile();
+    LOG4CPLUS_INFO(LOG_SOLAR, "Starting(" << "CGeneralAgent::Initialize" << ") ...");
+
+    //    g_Config.saveFile();
 }
 
 int CGeneralAgent::InitializeLogs()
@@ -593,9 +669,9 @@ int CGeneralAgent::InitializeLogs()
     {
         std::string strFilePathName = __cfgGeneral.getConfig().strLogFilePath +"/"+  __cfgGeneral.getConfig().strLogFileName;
         printf("Initialize Logs:%s, MaxSize:%d Files:%d - "
-			, strFilePathName.c_str()
-			, __cfgGeneral.getConfig().maxFileSize
-			, __cfgGeneral.getConfig().maxBackupIndex);
+               , strFilePathName.c_str()
+               , __cfgGeneral.getConfig().maxFileSize
+               , __cfgGeneral.getConfig().maxBackupIndex);
         int iret = ez_creat_dir(__cfgGeneral.getConfig().strLogFilePath.c_str());
         if (iret<0)
             printf("failed\n");
@@ -603,8 +679,8 @@ int CGeneralAgent::InitializeLogs()
             printf("success\n");
 
         append_1 = new RollingFileAppender(LOG4CPLUS_TEXT(strFilePathName)
-                                   , __cfgGeneral.getConfig().maxFileSize
-                                   , __cfgGeneral.getConfig().maxBackupIndex);
+                                           , __cfgGeneral.getConfig().maxFileSize
+                                           , __cfgGeneral.getConfig().maxBackupIndex);
     }
     append_1->setName(LOG4CPLUS_TEXT("TsHome"));
     append_1->setLayout( std::auto_ptr<Layout>(new PatternLayout(pattern)) );

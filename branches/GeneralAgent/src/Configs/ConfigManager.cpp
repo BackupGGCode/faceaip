@@ -44,8 +44,22 @@ int CConfigManager::SetDefaultConfig(int iConfigType)
         }
         case CFG_IDX_TcpSocketServer:
         {
-            //普通设置
+            //TCP服务器
             iRet |= recallConfig(CFG_NAME_TcpSocketServer);
+
+            break;
+        }
+        case CFG_IDX_TcpSocketConnector:
+        {
+            //TCP客户端连接
+            iRet |= recallConfig(CFG_NAME_TcpSocketConnector);
+
+            break;
+        }
+        case CFG_IDX_ConsoleOverTcp:
+        {
+            //调试终端
+            iRet |= recallConfig(CFG_NAME_ConsoleOverTcp);
 
             break;
         }
@@ -160,6 +174,11 @@ void CConfigManager::initialize(std::string mfile, std::string sfile)
     
     m_mapTranslate.insert(valueType(CFG_NAME_TcpSocketServer, CFG_IDX_TcpSocketServer));
     setupConfig(CFG_NAME_TcpSocketServer, m_configTcpSocketServer);
+    
+    m_mapTranslate.insert(valueType(CFG_NAME_TcpSocketConnector, CFG_IDX_TcpSocketConnector));
+    setupConfig(CFG_NAME_TcpSocketConnector, m_configTcpSocketConnector);
+    m_mapTranslate.insert(valueType(CFG_NAME_ConsoleOverTcp, CFG_IDX_ConsoleOverTcp));
+    setupConfig(CFG_NAME_ConsoleOverTcp, m_configConsoleOverTcp);
 
     m_mapTranslate.insert(valueType(CFG_NAME_DB, CFG_IDX_DB));
     setupConfig(CFG_NAME_DB, m_configDB);

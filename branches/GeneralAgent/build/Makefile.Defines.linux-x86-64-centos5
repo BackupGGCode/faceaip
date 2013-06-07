@@ -38,3 +38,5 @@ LIBS +=		\
 		-lssl -lcrypto \
 		-lpthread
 
+#OBJS +=		Semaphore.o
+

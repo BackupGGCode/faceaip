@@ -19,18 +19,22 @@
 #include "GeneralAgentTcpSocket.h"
 
 #include <string.h> /* memset */
+#include <str_opr.h> /* dump */
 CGeneralAgentTcpSocket::CGeneralAgentTcpSocket(ISocketHandler& h, std::string strSocketName) : TcpSocket(h)
 {
     // 由Handle自己管理
     SetDeleteByHandler();
     // 数据不缓存
 #ifdef USE_DATAPARSE_EXAMPLE
+
     memset(&m_headLastOn, 0, sizeof(WIFI_AGENT_PROTOCOL_HEAD));
 #else
+
     DisableInputBuffer();
 #endif //USE_DATAPARSE_EXAMPLE
+
     m_tOnData = 0;
-    
+
     SetSockName(strSocketName);
 }
 
@@ -118,8 +122,12 @@ void CGeneralAgentTcpSocket::OnRead()
 void CGeneralAgentTcpSocket::OnRawData(const char *buf,size_t len)
 {
     m_tOnData = time(NULL);
-        __fline;
-        printf("CGeneralAgentTcpSocket::OnRawData:%d\n", len);
+    __fline;
+    printf("CGeneralAgentTcpSocket::OnRawData:%d\n", len);
+
+    		dumpBuffer(stdout
+    							, (unsigned char *)buf, len,
+    			SHOW_ASCII | SHOW_BINAR | SHOW_HEXAD | SHOW_LINER);
 
     //////////
     //有数据就调用， 另一种方式

@@ -22,6 +22,7 @@
 #include "GeneralAgentDef.h" /* default def */
 
 #include "EZThread.h"
+#include "EZTimer.h"
 #include "ListenSocket.h"
 
 // 反应堆
@@ -170,6 +171,13 @@ public:
     void Run();
 
     int Send2Socket(std::string strSocketName, const char *pData, size_t Len);
+    Socket * GetSocketByName(std::string strServerName);
+
+
+    void TimerProcMaintain();
+    const std::string &GetVersion();
+    unsigned int GetRunPeriod();
+    time_t GetStartTime();
 
 private:
     GENERALAGENTCFG_T m_ConfigGeneralAgent;
@@ -201,6 +209,10 @@ private:
 #endif
 
     int InitializeLogs();
+    CEZTimer          m_TimerMaintain;          //保活功能定时器
+    // 启动时间
+    unsigned int m_iRunPeriod;
+    time_t m_ttStartTime;
 
 }
 ; //CGeneralAgent

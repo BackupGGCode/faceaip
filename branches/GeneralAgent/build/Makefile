@@ -51,6 +51,8 @@ OBJS_CONFIGS	= \
 		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigManager.o \
 		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigGeneral.o \
 		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigTcpSocketServer.o \
+		$(GENERALAGENT_BASEDIR_SRC)/Configs/ConfigTcpSocketConnector.o \
+		$(GENERALAGENT_BASEDIR_SRC)/Configs/ConfigConsoleOverTcp.o \
 		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigDB.o \
 		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigWebService.o
 
@@ -165,4 +167,6 @@ tar:	clean
 	$(CPP) -c $(CFLAGS) $< -o $@
 
 clean:
-	rm -f $(DIST) $(OBJS_MAINTHREAD_P) $(OBJS_MULTITHREAD_P) $(GENERALAGENT_BASEDIR_SRC)/*.d
+	rm -f $(DIST) $(OBJS_MAINTHREAD_P) $(OBJS_MULTITHREAD_P)
+	find $(GENERALAGENT_BASEDIR_SRC) -name "*.d" |xargs rm -f
+	find $(GENERALAGENT_BASEDIR_SRC) -name "*.cfbk" |xargs rm -f

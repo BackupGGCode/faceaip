@@ -1,28 +1,27 @@
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*
- * ConfigTcpSocketServer.cpp - _explain_
+ * ConfigConsoleOverTcp.cpp - _explain_
  *
  * Copyright (C) 2013 FaceMetro.com, All Rights Reserved.
  *
- * $Id: ConfigTcpSocketServer.cpp 5884 2013-06-05 05:09:12Z WuJunjie $
+ * $Id: ConfigConsoleOverTcp.cpp 5884 2013-06-07 11:28:21Z WuJunjie $
  *
  *  Explain:
  *     -explain-
  *
  *  Update:
- *     2013-06-05 05:09:12  Create
+ *     2013-06-07 11:28:21  Create
  */
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 
-#include "ConfigTcpSocketServer.h"
 
-template<> void exchangeTable<ConfigTcpSocketServer>(CConfigExchange& xchg, CConfigTable& table, ConfigTcpSocketServer& config, int index, int app)
+#include "ConfigConsoleOverTcp.h"
+
+template<> void exchangeTable<ConfigConsoleOverTcp>(CConfigExchange& xchg, CConfigTable& table, ConfigConsoleOverTcp& config, int index, int app)
 {
     xchg.exchange(table, "SPort"    , config.SPort,       0, 65535 ,10000);
 
     xchg.exchange(table,"CheckPeriod", config.CheckPeriod,  0, 65535 ,0);
     xchg.exchange(table,"PeerTimeout", config.PeerTimeout,  0, 65535 ,300);
-
-    xchg.exchange(table, "Name"    , config.strSName    , "sms");
 }
