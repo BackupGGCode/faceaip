@@ -41,6 +41,7 @@ LIBS +=	-L$(EZLIBS_BASEDIR_LIBS)/lib -ljson-$(PLATFORM)
 #zlib
 CFLAGS += -I$(EZLIBS_BASEDIR_LIBS)/include/zlib
 LIBS +=	-L$(EZLIBS_BASEDIR_LIBS)/lib -lz-$(PLATFORM)
+
 #ezConfig
 CFLAGS += -DUSE_EZCONFIG
 CFLAGS += -I$(EZLIBS_BASEDIR_LIBS)/include/ezConfig

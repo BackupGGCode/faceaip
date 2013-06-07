@@ -458,11 +458,23 @@ BOOL CGeneralAgent::Start(GENERALAGENTCFG_T *pConfig)
     }
     else
     {
+    #ifdef USE_EZCONFIG
         // 调试的时候使用默认参数
     	__fline;
     	printf("SetDefaultConfig\n");
 
         SetDefaultConfig();
+
+    CConfigGeneral __cfgGeneral;
+    __cfgGeneral.update();
+    m_ConfigGeneralAgent.ConsoleOverTcpPort = __cfgGeneral.getConfig().portConsoleOverTcp;
+#else
+        // 调试的时候使用默认参数
+    	__fline;
+    	printf("SetDefaultConfig\n");
+
+        SetDefaultConfig();
+#endif //USE_EZCONFIG
     }
 
     ConnectorCreate();

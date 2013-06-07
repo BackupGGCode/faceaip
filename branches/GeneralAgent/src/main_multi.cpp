@@ -26,11 +26,13 @@
 #endif
 #include "GeneralAgent.h"
 
+#ifdef USE_EZCONFIG
 // config fname
 const char * const ConfigFile_1= "gm.cfg";
 const char * const ConfigFile_2 = "gm.cfg.duplicate";
+#endif //USE_EZCONFIG
 
-const char * const copy_right = "@(#) Copyright (c) 2013 tiansu-china.com.  All rights reserved";
+const char * const copy_right = "@(#) Copyright (c) 2013 ezlibs.com.  All rights reserved";
 const char * const version_string = "v 1.0.0 - ";
 const char * const desc="P_2013-5-20.gm.1000";
 
@@ -45,13 +47,9 @@ int main(int argc, char *argv[])
 
     g_Config.useDoubleCfgFile(1);
     g_Config.initialize(ConfigFile_1, ConfigFile_2);
-#endif //USE_EZCONFIG
-    //InitializeLogs();
-
-#ifdef USE_EZCONFIG
 
     g_Config.saveFile();
-#endif
+#endif //USE_EZCONFIG
 
 #ifdef USE_GENERALAGENTTCPSOCKETCONNECTOR
 

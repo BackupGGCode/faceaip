@@ -28,8 +28,8 @@
 #include "../../Device/EnOcean/enocean_mgr.h"
 #endif
 
-#ifdef USE_EZCONFIG_LIBS
-#include "../../Configs/ConfigManager.h"
+#ifdef USE_EZCONFIG
+#include "Configs/ConfigManager.h"
 #endif
 
 #include "GeneralConsoleOverTcp.h"
@@ -208,16 +208,16 @@ void CGeneralConsoleOverTcp::OnLine(const std::string& line)
         tprintf(" done.\n");
     }
 #endif //USE_ENOCEAN
-#ifdef USE_EZCONFIG_LIBS
+#ifdef USE_EZCONFIG
     else if (cmd == "showhttpc")
     {
         tprintf(" show http config...\n");
 
-        CConfigHttpClient __cfg;
-        __cfg.update();
+        //CConfigHttpClient __cfg;
+        //__cfg.update();
 
-        tprintf( "OperateURL:[%s]\n", __cfg.getConfig().OperateURL.c_str());
-        tprintf( "StatusURL:[%s]\n", __cfg.getConfig().StatusURL.c_str());
+        //tprintf( "OperateURL:[%s]\n", __cfg.getConfig().OperateURL.c_str());
+        //tprintf( "StatusURL:[%s]\n", __cfg.getConfig().StatusURL.c_str());
     }
     else if (cmd == "serverip")
     {
@@ -232,15 +232,15 @@ void CGeneralConsoleOverTcp::OnLine(const std::string& line)
             std::cout << strProcessURL << std::endl;
             std::cout << strStatusURL << std::endl;
 
-            CConfigHttpClient __cfg;
-            __cfg.update();
-            __cfg.getConfig().OperateURL = strProcessURL;
-            __cfg.getConfig().StatusURL = strStatusURL;
-            __cfg.commit();
+            //CConfigHttpClient __cfg;
+            //__cfg.update();
+            //__cfg.getConfig().OperateURL = strProcessURL;
+            //__cfg.getConfig().StatusURL = strStatusURL;
+            //__cfg.commit();
 
-            tprintf( "OperateURL:[%s]\n", __cfg.getConfig().OperateURL.c_str());
-            tprintf( "StatusURL:[%s]\n", __cfg.getConfig().StatusURL.c_str());
-            tprintf(" done.\n");
+            //tprintf( "OperateURL:[%s]\n", __cfg.getConfig().OperateURL.c_str());
+            //tprintf( "StatusURL:[%s]\n", __cfg.getConfig().StatusURL.c_str());
+            //tprintf(" done.\n");
         }
         else
         {
@@ -249,7 +249,7 @@ void CGeneralConsoleOverTcp::OnLine(const std::string& line)
 
 
     }
-#endif //USE_EZCONFIG_LIBS
+#endif //USE_EZCONFIG
     else if (cmd == "reboot")
     {
         tprintf("rebooting host ...\n");
