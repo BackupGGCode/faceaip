@@ -2,7 +2,7 @@
 /*
  * ConfigManager.cpp - _explain_
  *
- * Copyright (C) 2011 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
  * $Id: ConfigManager.cpp 5884 2012-07-02 09:17:36Z WuJunjie $
  *
@@ -206,12 +206,8 @@ void CConfigManager::setupConfig(const char* name, CConfigExchange& xchg)
     xchg.commit(NULL, -1, CONFIG_APPLY_NOT_SAVE); // 更新配置类的静态成员-配置结构的数据
     xchg.attach(this, (TCONFIG_PROC)&CConfigManager::onConfigChanged); //最后注册，这样初始化时不会多于地写配置文件
 }
-
-//根据配置名称取到到配置表，能够区分点分符号，涉及到配置的分级策略，暂未实现
-/*CConfigTable& CConfigManager::locate(CConfigTable& table, const char* name)
-{
-}*/
-
+//typedef Json::FastWriter CConfigWriter;
+//typedef Json::StyledWriter CConfigWriter;
 // 保存文件
 void CConfigManager::saveFile()
 {

@@ -2,7 +2,7 @@
 /*
  * GeneralSocketProcessor.h - _explain_
  *
- * Copyright (C) 2011 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
  * $Id: GeneralSocketProcessor.h 5884 2012-07-18 04:13:17Z WuJunjie $
  *

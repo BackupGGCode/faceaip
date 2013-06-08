@@ -2,7 +2,7 @@
 /*
  * DoubleOutLog.h.cpp - _explain_
  *
- * Copyright (C) 2011 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
  * $Id: DoubleOutLog.h.cpp 5884 2012-09-19 11:47:19Z WuJunjie $
  *

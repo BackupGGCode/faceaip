@@ -2,7 +2,7 @@
 /*
  * GeneralAgentTcpSocket.cpp - _explain_
  *
- * Copyright (C) 2011 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
  * $Id: GeneralAgentTcpSocket.cpp 0001 2012-04-06 09:58:37Z WuJunjie $
  *

@@ -2,7 +2,7 @@
 /*
  * GeneralConsoleOverTcp.cpp - _explain_
  *
- * Copyright (C) 2011 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
  * $Id: GeneralConsoleOverTcp.cpp 0001 2012-04-28 09:58:37Z WuJunjie $
  *
@@ -12,6 +12,7 @@
  *  Update:
  *     2012-04-28 09:58:37 WuJunjie Create
  *     2012-05-02 12:38:49 WuJunjie add login process, name=pwd is ok here
+ *     2013-06-08 11:17:39 WuJunjie add st function
  */
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
@@ -22,39 +23,54 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <iostream>
-//#include <pjlib.h>
 #include <Parse.h>
 #include "str_opr.h"
+#include "EZThread.h"
+#include "EZTimer.h"
+
 #ifdef USE_ENOCEAN
 #include "../../Device/EnOcean/enocean_mgr.h"
 #endif
 
 #ifdef USE_EZCONFIG
 #include "Configs/ConfigManager.h"
-//#include "../Configs/ConfigP2P.h"
 
 #endif
 
 #include "GeneralConsoleOverTcp.h"
 #include "GeneralAgentHandler.h"
 #include "GeneralAgent.h"
-//#include "../SmartHomeTelcom/AgentSmartHomeTelcom.h"
-//#include "../SmartHomeTelcom/HandlerSmartHomeTelcom.h"
-//#include "../Solar.h"
-#include "Logs.h"
 
-//#include "app.h"
-//extern pj_caching_pool g_cp;
+#ifdef USE_LOG4CPP
+#include "Logs.h"
+#endif //USE_LOG4CPP
+
 #include "GeneralSocketProcessor.h"
-//#include "../service/notification/myAPNS.h"
-//#include "../SmartHomeTelcom/HttpKeepConnectorSmartHomeTelcom.h"
 
 #ifdef USE_MY_WEBSERVICE
 #include "WebService/AgentWebService.h"
 #endif //
-//extern ts_udb_mgr g_udb_mgr;
-int hostTimeout;
-int termTimeout;
+#include "LineProtocolCmd.h"
+CmdList_T InputCmd[] =
+    {
+        /* ---------------------------------------------------------------------------------------------------------------------------------- */
+        /* CMD                      COMMENT                         FUNC  ACK_CMD                    ACK_COMMENT                     ACK_FUNC */
+        /* ---------------------------------------------------------------------------------------------------------------------------------- */
+        {"help,h"                 , "show cmd list"              , NULL, "help,h"                 , "show cmd list"              , NULL},
+        {"quit,q"                 , "quit debug"                 , NULL, "quit,q"                 , "quit debug"                 , NULL},
+        {"status,st,d"            , "show socket fd"             , NULL, "status, st, d"          , "show socket fd"             , NULL},
+        {"thread,tr"              , "show thread info"           , NULL, "thread,tr"              , "show thread info"           , NULL},
+        {"timer,ti"               , "show timer info"            , NULL, "timer,ti"               , "show timer info"            , NULL},
+        {"exit,x"                 , "exit, Suicide"              , NULL, "exit,x"                 , "exit, Suicide"              , NULL},
+        {"dpj"                    , "dump_pjturn_status"         , NULL, "dpj"                    , "dump_pjturn_status"         , NULL},
+        {"user [a|all|homeId]"    , "dump user info"             , NULL, "user [a|all|homeId]"    , "dump user info"             , NULL},
+        {"kick userName"          , "kick user"                  , NULL, "kick userName"          , "kick user"                  , NULL},
+        {"ipc"                    , "dump IPC web servers info"  , NULL, "ipc"                    , "dump IPC web servers info"  , NULL},
+        {"ctrl"                   , "control device"             , NULL, "ctrl"                   , "control device"             , NULL},
+        {"sd,s"                   , "send data over named socket", NULL, "sd"                     , "send data over named socket", NULL},
+    };
+#define INPUT_CMD_ITEMS sizeof(InputCmd)/sizeof(CmdList_T)
+
 // prompt
 #define CONSOLE_PROMPT "[GeneralConsoleOverTcp]$ "
 #define TOKEN_ConsoleOverTcp "========================================================="
@@ -69,11 +85,6 @@ CGeneralConsoleOverTcp::CGeneralConsoleOverTcp(ISocketHandler& h, std::string st
     //SetSockName(strSocketName);
 
     m_strLastCmd = "";
-
-    //CConfigP2P m_configP2P;
-   // m_configP2P.update();
-    //hostTimeout = m_configP2P.getConfig().HostTimeout;
-    //termTimeout = m_configP2P.getConfig().TermTimeout;
 
     m_ttLastUpdate = 0;
     m_bAutoDumpPJ = false;
@@ -96,10 +107,8 @@ void CGeneralConsoleOverTcp::OnAccept()
     tprintf(" datetime : %s\n", get_date_time_string(strDT, NULL));
 
     Send("Number of sockets in list : " + Utility::l2string(Handler().GetCount()) + "\n");
-    //Send("\n");
 
     tprintf("\n(none) login:");
-    //Send(CONSOLE_PROMPT);
 
     LOG4CPLUS_INFO(LOG_SOLAR, "CGeneralConsoleOverTcp::OnAccept:" << GetRemoteAddress() << ":" << GetRemotePort());
 }
@@ -129,8 +138,7 @@ void CGeneralConsoleOverTcp::tprintf(const char *format, ...)
 
     SendBuf(tmp, strlen(tmp));
 }
-#include "EZThread.h"
-#include "EZTimer.h"
+
 void CGeneralConsoleOverTcp::OnLine(const std::string& InputLine)
 {
     std::string CmdLine = InputLine;
@@ -169,7 +177,7 @@ void CGeneralConsoleOverTcp::OnLine(const std::string& InputLine)
 
             // 示例，相等即可
             if (m_strUName == m_strUPwd
-                /*&& m_strUName=="92617564685949712105142592000"*/)
+                /*&& m_strUName=="yourPwd"*/)
             {
                 bAccountisOK = true;
             }
@@ -210,22 +218,12 @@ void CGeneralConsoleOverTcp::OnLine(const std::string& InputLine)
     }
     else if (cmd == "help" || cmd == "h")
     {
-        tprintf(" help,h      ...... show cmd list.\n");
-        tprintf(" quit,q ...... quit debug.\n");
-        tprintf(" status, st  ...... show socket fd.\n");
-        tprintf(" thread,tr   ...... show thread info.\n");
-        tprintf(" timer,ti    ...... show timer info.\n");
-        tprintf(" exit,x    ...... exit, Suicide.\n");
-
-        tprintf(" dpj        ...... dump_pjturn_status.\n");
-
-        tprintf(" user [a|all|homeId]        ...... dump user info.\n");
-        tprintf(" kick userName        ...... kick user.\n");
-        tprintf(" ipc        ...... dump IPC web servers info.\n");
-        tprintf(" ctrl        ...... control device.\n");
-        tprintf(" sd         ...... send data over named socket.\n");
+        for (size_t ii=0; ii<INPUT_CMD_ITEMS; ii++)
+        {
+            tprintf(" %-20s ...... %s.\n", InputCmd[ii].pCmd, InputCmd[ii].pCmdComment);
+        }
     }
-    else if (cmd == "status" || cmd == "st")
+    else if (cmd == "status" || cmd == "st" || cmd == "d")
     {
         time_t ttStart =  g_GeneralAgent.GetStartTime();
         unsigned int ttLast = g_GeneralAgent.GetRunPeriod();
@@ -237,10 +235,12 @@ void CGeneralConsoleOverTcp::OnLine(const std::string& InputLine)
 
         tprintf("\n Socket Status:\n%s\n", TOKEN_ConsoleOverTcp);
         static_cast<GeneralAgentHandler&>(Handler()).List(this);
-		
+
 #ifdef USE_MY_WEBSERVICE
+
         g_AgentWebService.GetWebServiceHandler()->List(this);
 #endif
+
     }
     else if (cmd == "exit" || cmd == "x")
     {
@@ -272,11 +272,6 @@ void CGeneralConsoleOverTcp::OnLine(const std::string& InputLine)
     {
         tprintf(" show http config...\n");
 
-        //        CConfigHttpClient __cfg;
-        //        __cfg.update();
-        //
-        //        tprintf( "OperateURL:[%s]\n", __cfg.getConfig().OperateURL.c_str());
-        //        tprintf( "StatusURL:[%s]\n", __cfg.getConfig().StatusURL.c_str());
     }
     else if (cmd == "serverip")
     {
@@ -290,16 +285,6 @@ void CGeneralConsoleOverTcp::OnLine(const std::string& InputLine)
             std::string strStatusURL = "http://"+arg+"/exchange/submit_status_json_ts.php";
             std::cout << strProcessURL << std::endl;
             std::cout << strStatusURL << std::endl;
-
-            //            CConfigHttpClient __cfg;
-            //            __cfg.update();
-            //            __cfg.getConfig().OperateURL = strProcessURL;
-            //            __cfg.getConfig().StatusURL = strStatusURL;
-            //            __cfg.commit();
-            //
-            //            tprintf( "OperateURL:[%s]\n", __cfg.getConfig().OperateURL.c_str());
-            //            tprintf( "StatusURL:[%s]\n", __cfg.getConfig().StatusURL.c_str());
-            //            tprintf(" done.\n");
         }
         else
         {
@@ -331,7 +316,7 @@ void CGeneralConsoleOverTcp::OnLine(const std::string& InputLine)
 
             m_bAutoDumpUser= !m_bAutoDumpUser;
 
-           // tprintf("m_bAutoDumpUser:%d\n", m_bAutoDumpUser);
+            // tprintf("m_bAutoDumpUser:%d\n", m_bAutoDumpUser);
         }
         DumpUserInfo(home);
     }
@@ -357,31 +342,25 @@ void CGeneralConsoleOverTcp::OnLine(const std::string& InputLine)
 
         //g_GeneralSocketProcessor.ControlDevice(NULL, 0);
     } // else if (cmd == "ctrl")
-    else if (cmd == "sd")
+    else if (cmd == "sd" || cmd == "s")
     {
         tprintf("send data over named socket ...\n");
 
         Parse mypa(arg, " ");
         std::string strName = mypa.getword();
-        std::string strSend = mypa.getword();
+        std::string strSend = mypa.getrest();
 
-		g_GeneralAgent.Send2Socket(strName, strSend.c_str(), strSend.size());
+        g_GeneralAgent.Send2Socket(strName, strSend.c_str(), strSend.size());
 
-		
         tprintf("Send2Socket(%s, %s, %d) has been sended.\n", strName.c_str(), strSend.c_str(), strSend.size());
-
-        //g_GeneralSocketProcessor.ControlDevice(NULL, 0);
-        
-    } // else if (cmd == "ctrl")
+    }
     else if (cmd == "ttst")
     {
         tprintf("ttst ...\n");
 
-        //g_GeneralSocketProcessor.ControlDevice(NULL, 0);
-    } // else if (cmd == "ctrl")
+    } // else if (cmd == "ttst")
     else
     {
-        //static_cast<GeneralAgentHandler&>(Handler()).List(this);
     }
 
     // 最后发送提示符
@@ -472,8 +451,5 @@ int hexToInt(char *hex, int len)
     return value;
 }
 
-
 void CGeneralConsoleOverTcp::TestAPNSPush(std::string msg)
 {}
-
-

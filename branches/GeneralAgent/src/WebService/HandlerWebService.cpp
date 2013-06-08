@@ -2,7 +2,7 @@
 /*
  * HandlerWebService.cpp - _explain_
  *
- * Copyright (C) 2011 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
  * $Id: HandlerWebService.cpp 5884 2013-01-29 03:21:10Z WuJunjie $
  *

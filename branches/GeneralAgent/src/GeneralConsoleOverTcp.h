@@ -2,7 +2,7 @@
 /*
  * GeneralConsoleOverTcp.h - _explain_
  *
- * Copyright (C) 2011 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
  * $Id: GeneralConsoleOverTcp.h 0001 2012-04-28 09:58:37Z WuJunjie $
  *

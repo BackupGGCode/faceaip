@@ -2,7 +2,7 @@
 /*
  * TypeDefWebService.h - _explain_
  *
- * Copyright (C) 2011 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
  * $Id: TypeDefWebService.h 5884 2012-09-06 03:34:17Z WuJunjie $
  *

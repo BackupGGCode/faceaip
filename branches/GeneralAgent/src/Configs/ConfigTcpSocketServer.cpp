@@ -2,7 +2,7 @@
 /*
  * ConfigTcpSocketServer.cpp - _explain_
  *
- * Copyright (C) 2013 FaceMetro.com, All Rights Reserved.
+ * Copyright (C) 2013 ezlibs.com, All Rights Reserved.
  *
  * $Id: ConfigTcpSocketServer.cpp 5884 2013-06-05 05:09:12Z WuJunjie $
  *

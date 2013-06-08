@@ -2,7 +2,7 @@
 /*
  * GeneralAgentHttpKeepConnector.h - _explain_
  *
- * Copyright (C) 2011 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
  * $Id: GeneralAgentHttpKeepConnector.h 5884 2012-07-10 04:10:20Z WuJunjie $
  *

@@ -2,7 +2,7 @@
 /*
  * Session.cpp - _explain_
  *
- * Copyright (C) 2011 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
  * $Id: Session.cpp 5884 2013-02-26 09:39:20Z WuJunjie $
  *

@@ -2,7 +2,7 @@
 /*
  * TSHomeWebServiceMsg.h - _explain_
  *
- * Copyright (C) 2011 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
  * $Id: TSHomeWebServiceMsg.h 5884 2013-01-29 03:20:29Z WuJunjie $
  *

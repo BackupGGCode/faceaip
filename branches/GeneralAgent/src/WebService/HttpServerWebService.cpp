@@ -2,7 +2,7 @@
 /*
  * HttpServerWebService.cpp - _explain_
  *
- * Copyright (C) 2011 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
  * $Id: HttpServerWebService.cpp 5884 2013-01-29 03:21:34Z WuJunjie $
  *

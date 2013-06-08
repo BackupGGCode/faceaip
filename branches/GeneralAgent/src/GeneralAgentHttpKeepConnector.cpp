@@ -2,7 +2,7 @@
 /*
  * GeneralAgentHttpKeepConnector.cpp - _explain_
  *
- * Copyright (C) 2011 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
  * $Id: GeneralAgentHttpKeepConnector.cpp 5884 2012-07-10 04:11:10Z WuJunjie $
  *

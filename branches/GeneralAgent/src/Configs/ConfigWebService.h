@@ -2,7 +2,7 @@
 /*
  * ConfigWebService.h - _explain_
  *
- * Copyright (C) 2011 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
  * $Id: ConfigWebService.h 5884 2012-09-07 10:46:05Z WuJunjie $
  *

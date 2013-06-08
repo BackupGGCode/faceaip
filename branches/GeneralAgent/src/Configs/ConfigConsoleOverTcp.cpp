@@ -2,7 +2,7 @@
 /*
  * ConfigConsoleOverTcp.cpp - _explain_
  *
- * Copyright (C) 2013 FaceMetro.com, All Rights Reserved.
+ * Copyright (C) 2013 ezlibs.com, All Rights Reserved.
  *
  * $Id: ConfigConsoleOverTcp.cpp 5884 2013-06-07 11:28:21Z WuJunjie $
  *

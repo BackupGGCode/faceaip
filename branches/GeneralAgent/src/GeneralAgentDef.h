@@ -2,7 +2,7 @@
 /*
  * GeneralAgentDef.h - _explain_
  *
- * Copyright (C) 2012 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2012 ezlibs.com, All Rights Reserved.
  *
  * $Id: GeneralAgentDef.h 0001 2012-4-11 9:32:40Z WuJunjie $
  *

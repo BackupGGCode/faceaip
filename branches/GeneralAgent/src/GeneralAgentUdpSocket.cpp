@@ -2,7 +2,7 @@
 /*
  * GeneralAgentUdpSocket.cpp - _explain_
  *
- * Copyright (C) 2011 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
  * $Id: GeneralAgentUdpSocket.cpp 5884 2012-07-19 04:21:23Z WuJunjie $
  *

@@ -2,7 +2,7 @@
 /*
  * ConfigTcpSocketServer.h - _explain_
  *
- * Copyright (C) 2013 FaceMetro.com, All Rights Reserved.
+ * Copyright (C) 2013 ezlibs.com, All Rights Reserved.
  *
  * $Id: ConfigTcpSocketServer.h 5884 2013-06-05 05:11:14Z WuJunjie $
  *

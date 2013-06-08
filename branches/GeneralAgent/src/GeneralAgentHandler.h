@@ -2,7 +2,7 @@
 /*
  * GeneralAgentHandler.h - _explain_
  *
- * Copyright (C) 2011 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
  * $Id: GeneralAgentHandler.h 0001 2012-04-06 09:54:05Z WuJunjie $
  *

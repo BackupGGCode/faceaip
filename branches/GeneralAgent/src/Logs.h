@@ -2,7 +2,7 @@
 /*
  * Logs.h - _explain_
  *
- * Copyright (C) 2011 tiansu-china.com, All Rights Reserved.
+ * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
  * $Id: Logs.h 5884 2012-08-13 01:54:12Z WuJunjie $
  *
