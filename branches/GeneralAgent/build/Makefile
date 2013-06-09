@@ -36,13 +36,6 @@ OBJS_GENERALAGENT = \
 
 ##############################################################################
 ## 配置模块
-## json
-CFLAGS += -I$(EZLIBS_BASEDIR_LIBS)/include/json
-LIBS +=	-L$(EZLIBS_BASEDIR_LIBS)/lib -ljson-$(PLATFORM)
-#zlib
-CFLAGS += -I$(EZLIBS_BASEDIR_LIBS)/include/zlib
-LIBS +=	-L$(EZLIBS_BASEDIR_LIBS)/lib -lz-$(PLATFORM)
-
 #ezConfig
 CFLAGS += -DUSE_EZCONFIG
 CFLAGS += -I$(EZLIBS_BASEDIR_LIBS)/include/ezConfig
@@ -54,8 +47,15 @@ OBJS_CONFIGS	= \
 		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigTcpSocketServer.o \
 		$(GENERALAGENT_BASEDIR_SRC)/Configs/ConfigTcpSocketConnector.o \
 		$(GENERALAGENT_BASEDIR_SRC)/Configs/ConfigConsoleOverTcp.o \
-		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigDB.o \
+		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigDatabase.o \
 		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigWebService.o
+
+## json
+CFLAGS += -I$(EZLIBS_BASEDIR_LIBS)/include/json
+LIBS += -L$(EZLIBS_BASEDIR_LIBS)/lib -ljson-$(PLATFORM)
+#zlib
+CFLAGS += -I$(EZLIBS_BASEDIR_LIBS)/include/zlib
+LIBS += -L$(EZLIBS_BASEDIR_LIBS)/lib -lz-$(PLATFORM)
 ##############################################################################
 ## 日志模块
 #log4cplus
@@ -134,7 +134,6 @@ LIBS +=	-lpthread
 CFLAGS+=-I${EZLIBS_BASEDIR_LIBS}/libsigc++-$(PLATFORM)/lib/sigc++-2.0/include
 CFLAGS+=-I${EZLIBS_BASEDIR_LIBS}/libsigc++-$(PLATFORM)/include/sigc++-2.0
 LIBS +=	-L${EZLIBS_BASEDIR_LIBS}/libsigc++-${PLATFORM}/lib/ -lsigc-2.0
-
 LIBS += -luuid
 
 #利用main调用，不用ezthread库
@@ -172,6 +171,7 @@ tar:	clean
 	$(CPP) -c $(CFLAGS) $< -o $@
 
 clean:
-	rm -f $(DIST) $(OBJS_MAINTHREAD_P) $(OBJS_MULTITHREAD_P)
+	rm -f $(DIST)
+	find $(GENERALAGENT_BASEDIR_SRC) -name "*.o" |xargs rm -f
 	find $(GENERALAGENT_BASEDIR_SRC) -name "*.d" |xargs rm -f
 	find $(GENERALAGENT_BASEDIR_SRC) -name "*.cfbk" |xargs rm -f

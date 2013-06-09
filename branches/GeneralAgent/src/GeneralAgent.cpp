@@ -203,7 +203,7 @@ int CGeneralAgent::Send2Socket(std::string strServerName, const char *pData, siz
     else
     {
         __trip;
-        printf("Send2Socket %s, Len:%d failed\n", strServerName.c_str(), Len);
+        printf("Send2Socket %s, Len:%ul failed\n", strServerName.c_str(), Len);
     }
 
     return 0;

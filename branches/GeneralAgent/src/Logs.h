@@ -30,7 +30,7 @@ using namespace log4cplus::helpers;
 
 // 日志所属模块
 #define  LOG_ROOT  Logger::getRoot()
-#define  LOG_SOLAR   Logger::getInstance(LOG4CPLUS_TEXT("SOLAR"))
+#define  LOG_SOLAR   Logger::getInstance(LOG4CPLUS_TEXT("MAIN"))
 #define  LOG_IPC   Logger::getInstance(LOG4CPLUS_TEXT("IPC"))
 #define  LOG_TURN  Logger::getInstance(LOG4CPLUS_TEXT("TURN"))
 #define  LOG_DB  Logger::getInstance(LOG4CPLUS_TEXT("DB"))

@@ -16,32 +16,7 @@
 #ifndef __CONFIG_MANAGER_H__
 #define __CONFIG_MANAGER_H__
 
-// 以zip压缩格式存放
-// 这里注释， 以便手工修改， 2012-6-21 16:36:36 wujunjie 
-// #define HAVE_ZLIB_ZFILE
-
-#include <string.h>
-#include "EZThread.h"
-#include "EZTimer.h"
-#include "EZSignals.h"
-#include <json.h>
-
-#ifdef HAVE_ZLIB_ZFILE
-#include "zlib.h"
-#else
-#include "File.h"
-#endif //HAVE_ZLIB_ZFILE
-
-class CSaveDelay : public CEZThread
-{
-public:
-    CSaveDelay();
-    ~CSaveDelay();
-    int Start();
-    int Stop();
-    void ThreadProc();
-
-};
+#include "ConfigMan.h"
 
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 #include "ConfigGeneral.h"
@@ -50,103 +25,59 @@ public:
 #include "ConfigTcpSocketConnector.h"
 #include "ConfigConsoleOverTcp.h"
 
-#include "ConfigDB.h"
+#include "ConfigDatabase.h"
 #include "ConfigWebService.h"
 
 typedef enum __cfg_index_t {
-    CFG_IDX_GENERAL =  0,	// 普通
+    CFG_IDX_General =  0,	// 普通
     CFG_IDX_TcpSocketServer,				// TcpSocketServer 配置
     CFG_IDX_TcpSocketConnector,				// TcpSocketConnector 配置
     CFG_IDX_ConsoleOverTcp,				// ConsoleOverTcp 配置
-    CFG_IDX_DB,				// 数据库配置
-    CFG_IDX_MY_WEBSERVICE,				// 
+    CFG_IDX_DataBase,				// 数据库配置
+    CFG_IDX_WebService,				//
     CFG_IDX_ALL,			// 实际没有这种配置， 便于恢复全部等用
 }CFG_INDEX;
 
-#define CFG_NAME_GENERAL "General"
+#define CFG_NAME_General "General"
 #define CFG_NAME_TcpSocketServer "TcpSocketServer"
 #define CFG_NAME_TcpSocketConnector "TcpSocketConnector"
 #define CFG_NAME_ConsoleOverTcp "ConsoleOverTcp"
-#define CFG_NAME_DB "DB"
-#define CFG_NAME_MY_WEBSERVICE "MY_WEBSERVICE"
+#define CFG_NAME_DataBase "DataBase"
+#define CFG_NAME_WebService "WebService"
 
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
-class CConfigManager : public CEZObject
+class CConfigManager : public CConfigMan
 {
-private:
-/*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-    //各个子配置
-    CConfigGeneral		m_configGeneral;	/*!< 普通配置 */
-    
-    CConfigTcpSocketServer			m_configTcpSocketServer;	/*!< dsd */
-    CConfigTcpSocketConnector			m_configTcpSocketConnector;	/*!< dsd */
-    CConfigConsoleOverTcp			m_configConsoleOverTcp;	/*!< dsd */
-    
-    CConfigDB			m_configDB;	/*!< dsd */
-    CConfigWebService			m_configWebService;	/*!< WebService */
-
-/*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
-
-private:
-    CConfigManager();
-    ~CConfigManager();
-
-    typedef std::map<std::string, CConfigExchange*> CONFIG_MAP;
-    typedef std::map<int, std::string> CONFIG_MAPR;
-    typedef std::map<std::string, int> MAP_TRANSLATE;
-    typedef std::map<std::string, int>::value_type valueType;
-
 public:
     PATTERN_SINGLETON_DECLARE(CConfigManager);
 
-    //! 属性设置
-    // iDoubleCfgFile 0 关闭双配置功能， 默认关闭， 1 开启双配置功能
-    void useDoubleCfgFile(int iDoubleCfgFile = 1);
     //! 初始化
+    // 不传参数使用默认名字，且为单文件方式
+    // 传一个参数使用该名字，为单文件方式
+    // 传两个参数使用该名字，为双文件方式
     void initialize(std::string mfile="", std::string sfile="");
-    int recallConfig(const char* name, const char* user = NULL, int index = -1);
-    int recallConfigAll(const char* user = NULL);
-    //! 保存文件
-    void saveFile();
+
     //! 设置默认配置，供GUI界面和网络模块调用
     int SetDefaultConfig(int iConfigType);
 
 private:
-    void setupConfig(const char* name, CConfigExchange& xchg);
-    void onConfigChanged(CConfigExchange& xchg, int& ret);
-    //CConfigTable& locate(CConfigTable& table, const char* name);
-    const char* nameFromID(int id);
-    CConfigExchange* xchgFromName(const char* name);
-    int readConfig(const char* chPath, std::string& input);
-    void onTimer(PARAM arg);
-    //!恢复网络端不是保存在配置文件中的配置
-    int setDefaultNetConfig();
+    /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
+    //各个子配置
+    CConfigGeneral		m_configGeneral;	/*!< 普通配置 */
+
+    CConfigTcpSocketServer			m_configTcpSocketServer;	/*!< dsd */
+    CConfigTcpSocketConnector			m_configTcpSocketConnector;	/*!< dsd */
+    CConfigConsoleOverTcp			m_configConsoleOverTcp;	/*!< dsd */
+
+    CConfigDatabase			m_configDB;	/*!< dsd */
+    CConfigWebService			m_configWebService;	/*!< WebService */
+
+    /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 private:
-    CConfigTable m_configAll;				/*!< 配置总表 */
-    int m_changed;							/*!< 配置表变化了 */
-#ifdef HAVE_ZLIB_ZFILE
-
-    gzFile m_fileConfig;					/*!< 配置文件 */
-#else
-
-    CFile m_fileConfig;
-#endif
-
-    CONFIG_MAP m_map;						/*!< 配置名称和配置类指针映射表 */
-    CONFIG_MAPR m_mapReverse;				/*!< 配置ID和配置名称和映射表 */
-
-    MAP_TRANSLATE m_mapTranslate;			/*!< 配置名称和配置类型映射表*/
-
-    CEZTimer m_Timer;
-    std::string m_stream;	// 字符串流
-
-    CSaveDelay				m_saveDelay;
-
-    std::string m_strConfigFileFirst;
-    std::string m_strconfigFileSecond;
-    int m_iDoubleCfgFile;
+    CConfigManager(){};
+    ~CConfigManager(){};
 };
 
 #define g_Config (*CConfigManager::instance())

@@ -45,10 +45,8 @@ int main(int argc, char *argv[])
     g_ThreadManager.RegisterMainThread(ThreadGetID());
 #ifdef USE_EZCONFIG
 
-    g_Config.useDoubleCfgFile(1);
     g_Config.initialize(ConfigFile_1, ConfigFile_2);
 
-    g_Config.saveFile();
 #endif //USE_EZCONFIG
 
 #ifdef USE_GENERALAGENTTCPSOCKETCONNECTOR
