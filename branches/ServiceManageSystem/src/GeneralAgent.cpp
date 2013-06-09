@@ -493,9 +493,11 @@ BOOL CGeneralAgent::Start(GENERALAGENTCFG_T *pConfig)
 
         SetDefaultConfig();
 
-        CConfigGeneral __cfgGeneral;
-        __cfgGeneral.update();
-        m_ConfigGeneralAgent.ConsoleOverTcpPort = __cfgGeneral.getConfig().portConsoleOverTcp;
+#ifdef USE_GENERALCONSOLE_OVERTCP
+        CConfigConsoleOverTcp __cfgConsoleOverTcp;
+        __cfgConsoleOverTcp.update();
+        m_ConfigGeneralAgent.ConsoleOverTcpPort = __cfgConsoleOverTcp.getConfig().SPort;
+#endif // USE_GENERALCONSOLE_OVERTCP
 
 #ifdef USE_GENERALAGENTTCPSOCKETSERVER
 

@@ -20,7 +20,7 @@
 
 template<> void exchangeTable<ConfigConsoleOverTcp>(CConfigExchange& xchg, CConfigTable& table, ConfigConsoleOverTcp& config, int index, int app)
 {
-    xchg.exchange(table, "SPort"    , config.SPort,       0, 65535 ,10000);
+    xchg.exchange(table, "SPort"    , config.SPort,       0, 65535 ,10023);
 
     xchg.exchange(table,"CheckPeriod", config.CheckPeriod,  0, 65535 ,0);
     xchg.exchange(table,"PeerTimeout", config.PeerTimeout,  0, 65535 ,300);
