@@ -23,52 +23,13 @@
 #include "../Configs/ConfigWebService.h"
 #include "str_opr.h"
 #include "StringOpr.h"
-//#include "app/server/EasyMysqlConn.h"
-//#include "app/common/md5_tools.h"
-//#include "app/server/types.h"
-//#include "tshome_typedef.h"
-//#include "app/datagram/remote_def.h"
-//#include "app/datagram/report_mgr.h"
-//#include "app/common/config.h"
-//#include "StringOpr.h"
-
-//#include "../IpcServer/GeneralSocketProcessor.h"
 #include "HandlerWebService.h"
-
-//extern ts_udb_mgr g_udb_mgr;
-//extern pj_bool_t g_run;
-//extern int pj_runnable;
-//#define SEND_BUFFER_SIZE 512
-//extern pj_thread_t *httpSendThread;
-
-/*pjsip data*/
-//typedef struct send_to_client_data_t
-//{
-//    //pj_turn_srv *srv;                                       //pjsip server, real data sender
-//    char snd_data[SEND_BUFFER_SIZE];                        //data
-//    int snd_len;                                            //data length
-//    char ip[48];                                               //destination ip
-//    int port;                                               //destination port
-//}
-//send_to_client_data;
-//
-//CEZMutex g_mutexFor_send_data_buffer;
-//std::vector<send_to_client_data> send_data_buffer;
-//sem_t sem_sendto_client;
-
 
 CHttpServerWebService::CHttpServerWebService(ISocketHandler& h) : HttpdSocket(h)
 {
     m_strBody = "";
     m_requestPrefix = "";
     m_sessionId = "";
-	//m_pPJ_TURN_SRV = NULL;
-	//int ini2 = sem_init(&sem_sendto_client, 0, 0);
-//    if(ini2 != 0)
-//    {
-//        LOG4CPLUS_ERROR(LOG_WEBSERVICES, "sem init failed");
-//        exit(1);
-//    }
 }
 
 void CHttpServerWebService::Init()
@@ -98,10 +59,7 @@ void CHttpServerWebService::OnHeaderComplete()
 
 void CHttpServerWebService::OnUnknowRequest()
 {
-    //LOG4CPLUS_ERROR(LOG_WEBSERVICES, "CHttpServerWebService::OnUnknowRequest(), not a http req");
 
-    //Reset(); // prepare for next request
-    //SetCloseAndDelete();
 }
 
 void CHttpServerWebService::CreateHeader(size_t ContentLength, const std::string &matchRequest)
@@ -140,10 +98,10 @@ void CHttpServerWebService::CreateHeader(size_t ContentLength, const std::string
         AddResponseHeader( "Content-length", Utility::l2string((long)ContentLength) );
     }
 
-	if (matchRequest != "")
-	{
-		AddResponseHeader( "Match-request", matchRequest);
-	}
+    if (matchRequest != "")
+    {
+        AddResponseHeader( "Match-request", matchRequest);
+    }
     SendResponse();
 }
 
@@ -236,9 +194,6 @@ void CHttpServerWebService::OnDataComplete()
     //CreateHeader();
 
     LOG4CPLUS_DEBUG(LOG_WEBSERVICES, "Request URL:" << GetUrl());
-	
-	//在调用接口处理函数之前，先将公用资源初始化。
-	//m_pPJ_TURN_SRV = static_cast<CHandlerWebService&>(Handler()).GetPJ_server();
 
     //exa:
     //	curl http://192.168.10.125:60088/WebService/TestIF -d "[{\"reason\":\"OK\",\"result\":\"0\"}]"
@@ -248,12 +203,12 @@ void CHttpServerWebService::OnDataComplete()
         Do_TestIF(__CTSHomeWebServiceIF);
     }
     //认证接口
-    //	http://218.95.39.172:60088/SmartHomeTelcom/requestReportDeviceConfigParam
+    //	http://218.95.39.172:60088/WebService/requestReportDeviceConfigParam
     else if (GetUrl()==__cfg.getConfig().strURL_requestAuth)
     {
         Do_requestAuth(__CTSHomeWebServiceIF);
     }//主机认证接口
-    //	http://218.95.39.172:60088/SmartHomeTelcom/requestReportDeviceConfigParam
+    //	http://218.95.39.172:60088/WebService/requestReportDeviceConfigParam
     else if (GetUrl()==__cfg.getConfig().strURL_requestAuthByHost)
     {
         Do_requestAuthByHost(__CTSHomeWebServiceIF);
@@ -265,33 +220,33 @@ void CHttpServerWebService::OnDataComplete()
         Do_heartbeat(__CTSHomeWebServiceIF);
     }
     //5.2.8	获取设备状态接口 getDeviceStateList
-    //	http://218.95.39.172:60088/SmartHomeTelcom/getDeviceStateList
+    //	http://218.95.39.172:60088/WebService/getDeviceStateList
     //
     else if (GetUrl()==__cfg.getConfig().strURL_registerURL)
     {
         Do_registerURL(__CTSHomeWebServiceIF);
     }
     //5.2.4	请求配置上报接口
-    //	http://218.95.39.172:60088/SmartHomeTelcom/requestReportDeviceConfigParam
+    //	http://218.95.39.172:60088/WebService/requestReportDeviceConfigParam
     else if (GetUrl()==__cfg.getConfig().strURL_stopHostNetwork)
     {
         Do_stopHostNetwork(__CTSHomeWebServiceIF);
     }
     //5.2.6	获取网关状态接口 getCtrlDeviceState
-    //	http://218.95.39.172:60088/SmartHomeTelcom/getCtrlDeviceState
+    //	http://218.95.39.172:60088/WebService/getCtrlDeviceState
     else if (GetUrl()==__cfg.getConfig().strURL_notifyUpdate)
     {
         Do_notifyUpdate(__CTSHomeWebServiceIF);
     }
     //5.2.8	获取设备状态接口 getDeviceStateList
-    //	http://218.95.39.172:60088/SmartHomeTelcom/getDeviceStateList
+    //	http://218.95.39.172:60088/WebService/getDeviceStateList
     //
     else if (GetUrl()==__cfg.getConfig().strURL_getDeviceStateList)
     {
         Do_getDeviceStateList(__CTSHomeWebServiceIF);
     }
     //5.2.9	控制命令接口 controlDevice
-    //	http://218.95.39.172:60088/SmartHomeTelcom/controlDevice
+    //	http://218.95.39.172:60088/WebService/controlDevice
     else if (GetUrl()==__cfg.getConfig().strURL_controlDevice)
     {
         Do_controlDevice(__CTSHomeWebServiceIF);
@@ -335,10 +290,12 @@ std::string CHttpServerWebService::getMySessionId()
 {
     return m_sessionId;
 }
-
+// curl http://localhost:60088/WebService/TestIF -d "[{\"reason\":\"I Love You.\",\"result\":\"0\"}]"
 int CHttpServerWebService::Do_TestIF( CTSHomeWebServiceIF &JsonData)
 {
     LOG4CPLUS_DEBUG(LOG_WEBSERVICES, "Do_TestIF");
+    __fline;
+    cout << "Do_TestIF, your json:" << JsonData.ToString()<< endl;
 
     std::string strSendBuf;
 
@@ -349,81 +306,6 @@ int CHttpServerWebService::Do_TestIF( CTSHomeWebServiceIF &JsonData)
     return 0;
 }
 
-
-//static int add_send_data(send_to_client_data &data)
-//{
-//    CEZLock guard(g_mutexFor_send_data_buffer);
-//
-//    send_data_buffer.push_back(data);
-//    return TS_SUCCESS;
-//}
-//
-//static int pop_first_send_data(send_to_client_data &data)
-//{
-//    CEZLock guard(g_mutexFor_send_data_buffer);
-//    if(send_data_buffer.size() <= 0)
-//    {
-//        return TS_FAILED;
-//    }
-//    data = send_data_buffer[0];
-//    send_data_buffer.erase(send_data_buffer.begin());
-//    return TS_SUCCESS;
-//}
-//
-//int sendto_client(void *data)
-//{
-//    //__fline;
-//    LOG4CPLUS_DEBUG(LOG_WEBSERVICES, "start sendto_client");
-//
-//    while(pj_runnable)
-//    {
-//        sem_wait(&sem_sendto_client);
-//
-//        send_to_client_data send_data = {0};
-//        int result = pop_first_send_data(send_data);
-//        if(result == TS_SUCCESS)
-//        {
-//            //call the pjsip API to send data to client.
-//            pj_status_t res = send_data_to_client(send_data.srv,
-//                                                  (unsigned char *)send_data.snd_data,
-//                                                  send_data.snd_len,
-//                                                  //PJ_FALSE,
-//                                                  send_data.ip,
-//                                                  send_data.port);
-//            if(res == PJ_SUCCESS)
-//            {
-//                LOG4CPLUS_DEBUG(LOG_WEBSERVICES, "send_data_to_client "<<send_data.ip << ":"<<send_data.port);
-//            }
-//            else
-//            {
-//                LOG4CPLUS_ERROR(LOG_WEBSERVICES, "Send data error. send_data_to_client "<<send_data.ip << ":"<<send_data.port);
-//            }
-//        }
-//        else
-//        {
-//            // impossble
-//            LOG4CPLUS_ERROR(LOG_WEBSERVICES, "pop_first_send_data failed.");
-//            usleep(50*1000);
-//        }
-//    }
-//    pj_thread_join(httpSendThread);
-//    pj_thread_destroy(httpSendThread);
-//    return 1;
-//}
-
-//void CHttpServerWebService::SetPJ_turn_srv(pj_turn_srv *ppj_turn_srv)
-//{
-//    m_pPJ_TURN_SRV = ppj_turn_srv;
-//    return;
-//}
-//
-//pj_turn_srv * CHttpServerWebService::GetPJ_server()
-//{
-//    assert(m_pPJ_TURN_SRV);
-//
-//    return m_pPJ_TURN_SRV;
-//}
-
 // WEB子系统向连辅子系统注册接口地址的接口
 int CHttpServerWebService::Do_registerURL( CTSHomeWebServiceIF &JsonData)
 {
@@ -431,7 +313,7 @@ int CHttpServerWebService::Do_registerURL( CTSHomeWebServiceIF &JsonData)
     CIPC_registerURL __op;
     JsonData.Decode(__op);
     __op.dump();
-	m_sessionId = __op.sessionId;
+    m_sessionId = __op.sessionId;
 
     // 构造返回消息
     CTSHomeWebServiceIF __CTSHomeWebServiceIF;
@@ -589,10 +471,10 @@ int CHttpServerWebService::Do_heartbeat( CTSHomeWebServiceIF &JsonData)
     JsonData.Decode(__op);
     __op.dump();
     m_sessionId = __op.sessionId;
-	
-	cout << "__op.sessionId = " << __op.sessionId << endl;
 
-	// 构造返回消息
+    cout << "__op.sessionId = " << __op.sessionId << endl;
+
+    // 构造返回消息
     CTSHomeWebServiceIF __CTSHomeWebServiceIF;
 
     CIPC_heartbeat_ACK Msg;
@@ -601,7 +483,7 @@ int CHttpServerWebService::Do_heartbeat( CTSHomeWebServiceIF &JsonData)
     {
         __fline;
         cout << "AuthSession succeeded." << endl;
-		Msg.result = "0";
+        Msg.result = "0";
         Msg.reason = "Heartbeat success";
     }
     else
@@ -630,7 +512,7 @@ int CHttpServerWebService::Do_stopHostNetwork( CTSHomeWebServiceIF &JsonData)
     CIPC_stopHostNetwork __op;
     JsonData.Decode(__op);
     __op.dump();
-	m_sessionId = __op.sessionId;
+    m_sessionId = __op.sessionId;
 
     // 构造返回消息
     CTSHomeWebServiceIF __CTSHomeWebServiceIF;
@@ -638,83 +520,9 @@ int CHttpServerWebService::Do_stopHostNetwork( CTSHomeWebServiceIF &JsonData)
 
     if(static_cast<CHandlerWebService&>(Handler()).AuthSession(m_sessionId, EAW_STOPHOSTNET) ==0)
     {
-        
+
         Msg.result = "0";
         Msg.reason = "OK";
-        //m_pPJ_TURN_SRV = static_cast<CHandlerWebService&>(Handler()).GetPJ_server();
-        //assert(m_pPJ_TURN_SRV != NULL);
-//        if(m_pPJ_TURN_SRV->core.is_running)
-//        {
-//            //int reportid = host_req->header.searilNum;
-//            int homeid = atoi(__op.homeIdStr.c_str());
-//            LOG4CPLUS_DEBUG(LOG_WEBSERVICES, "homeid=%d"<<homeid);
-//            ts_user *host_user = NULL;
-//            //search the owner host user.
-//            std::vector<ts_user> host_list;
-//            int result = g_udb_mgr.home.get_hosts(homeid, host_list);
-//            if(result == 0 && host_list.size() > 0)
-//            {
-//                // get the only one host user in this list.
-//                host_user = &(host_list[0]);
-//            }
-//            if(NULL != host_user)
-//            {
-//                std::string username = __op.username;
-//                //begin new a to_host_deny_connect_req_t object
-//                host_deny_connect_req_t to_host;
-//                memset(&to_host, 0, sizeof(host_deny_connect_req_t));
-//                int body_len = sizeof(host_deny_connect_req_t)-sizeof(remote_header_t);
-//                init_common_header(&to_host.header, 0, TSHOME_PROTOCOL_VERSION, body_len, STOP_CONNECTION, REQUEST, SERVER);
-//
-//                to_host.session_id = host_user->session_id;
-//                to_host.report_id = 0;//需要有函数来为每个请求生成一个id标记，用于服务器收到主机响应时查找websocket
-//                //end
-//                u_char snd_buff[SEND_BUFFER_SIZE] = {0};
-//                fill_stophostnet_req_to_host(snd_buff, &to_host);
-//                //get a SDP object of the host user.
-//                std::vector<user_sdp> sdps = host_user->sdpVec;
-//
-//                if(sdps.size() > 0)
-//                {
-//                    user_sdp sdp = sdps[0];
-//
-//                    //begin new a snd_to_client_data object
-//                    send_to_client_data tc;
-//                    memset(&tc, 0, sizeof(send_to_client_data));
-//                    tc.srv = m_pPJ_TURN_SRV;
-//                    tc.snd_len = sizeof(host_deny_connect_req_t);
-//                    memcpy(tc.snd_data,&snd_buff, tc.snd_len);
-//                    //tc.ip = sdp.addr;
-//                    strcpy(tc.ip, sdp.addr);
-//                    tc.port = sdp.port;
-//                    //end
-//
-//                    add_send_data(tc);
-//
-//                    sem_post(&sem_sendto_client);
-//                }
-//                else
-//                {
-//                    Msg.result = "1";
-//                    Msg.reason = "ERR_HOST(SDP)_LOSE";
-//                }
-//
-//
-//            }
-//            else
-//            {
-//                //no host user, then responsed an ERR_HOST_UNLOGIN
-//                Msg.result = "1";
-//                Msg.reason = "ERR_HOST_UNLOGIN";
-//            }
-//        }
-//        else
-//        {//if the pjsip server stoped, this request will be unreachable.
-//            Msg.result = "1";
-//            Msg.reason = "The pjsip server stoped";
-//        }
-
-
     }
     else
     {
@@ -741,124 +549,17 @@ int CHttpServerWebService::Do_notifyUpdate( CTSHomeWebServiceIF &JsonData)
     CIPC_notifyUpdate __op;
     JsonData.Decode(__op);
     __op.dump();
-	m_sessionId = __op.sessionId;
+    m_sessionId = __op.sessionId;
 
     // 构造返回消息
     CTSHomeWebServiceIF __CTSHomeWebServiceIF;
     CIPC_notifyUpdate_ACK Msg;
-	//CHandlerWebService handler = dynamic_cast<CHandlerWebService&>(Handler());
+    //CHandlerWebService handler = dynamic_cast<CHandlerWebService&>(Handler());
 
     if(static_cast<CHandlerWebService&>(Handler()).AuthSession(m_sessionId, EAW_NOTIFYUPDATE) ==0)
     {
-    	            Msg.result = "0";
-            Msg.reason = "Success";
-
-//        do
-//        {
-//            //m_pPJ_TURN_SRV = static_cast<CHandlerWebService&>(Handler()).GetPJ_server();
-//            assert(m_pPJ_TURN_SRV != NULL);
-//            if(!m_pPJ_TURN_SRV->core.is_running)
-//            {
-//                Msg.result = "1";
-//                Msg.reason = "the pjsip server stoped, this request will be unreachable.";
-//                LOG4CPLUS_DEBUG(LOG_WEBSERVICES, "the pjsip server stoped, this request will be unreachable.");
-//                break;
-//            }
-//    		LOG4CPLUS_DEBUG(LOG_WEBSERVICES, "homeid = " << __op.homeIdStr);
-//            int homeid = atoi(__op.homeIdStr.c_str());
-//            //begin new an update_push_update_t object
-//            update_issue_req_t push_update;
-//            memset(&push_update, 0, sizeof(update_issue_req_t));
-//            int body_len = sizeof(update_issue_req_t) - sizeof(remote_header_t);
-//            init_common_header(&push_update.header, 0, TSHOME_PROTOCOL_VERSION, body_len, UPDATE_ISSUE,
-//                               REQUEST, SERVER);
-//            std::vector<ts_user> host_list;
-//            int result = g_udb_mgr.home.get_hosts(homeid, host_list);
-//            u_char snd_buff[SEND_BUFFER_SIZE] = {0};
-//            if(result == 0 && host_list.size() > 0)
-//            {
-//                //iterator each host user.
-//                size_t i = 0;
-//                for(; i < host_list.size(); i++)
-//                {
-//                    push_update.session_id = host_list[i].session_id;
-//                    fill_push_update(snd_buff, &push_update);
-//                    //end fill datagram.
-//
-//
-//                    std::vector<user_sdp> sdps = host_list[i].sdpVec;
-//
-//                    if(sdps.size() <= 0)
-//                    {
-//                        continue;
-//                    }
-//                    user_sdp sdp = sdps[0];
-//
-//                    //new a request to host client
-//                    send_to_client_data tc;
-//                    memset(&tc, 0, sizeof(send_to_client_data));
-//                    tc.srv = m_pPJ_TURN_SRV;
-//                    tc.snd_len = sizeof(update_issue_req_t);
-//                    memcpy(tc.snd_data,snd_buff, tc.snd_len);
-//                    strcpy(tc.ip, sdp.addr);
-//                    tc.port = sdp.port;
-//
-//                    add_send_data(tc);
-//
-//                    sem_post(&sem_sendto_client);
-//                    memset(snd_buff, 0, sizeof(snd_buff));
-//
-//                }
-//
-//            }
-//            else
-//            {
-//                LOG4CPLUS_DEBUG(LOG_WEBSERVICES, "no host user");
-//            }
-//
-//            std::vector<ts_user> mobile_list;
-//            result = g_udb_mgr.home.get_mobiles(homeid, mobile_list);
-//            //iterator each mobile user.
-//            if(result == 0 && mobile_list.size() > 0)
-//            {
-//                size_t i = 0;
-//                for(; i < mobile_list.size(); i++)
-//                {
-//                    push_update.session_id = mobile_list[i].session_id;
-//                    fill_push_update(snd_buff, &push_update);
-//
-//                    std::vector<user_sdp> sdps = mobile_list[i].sdpVec;
-//
-//                    if(sdps.size() <= 0)
-//                    {
-//                        continue;
-//                    }
-//                    user_sdp sdp = sdps[0];
-//					
-//                    send_to_client_data tc;
-//                    memset(&tc, 0, sizeof(send_to_client_data));
-//                    tc.srv = m_pPJ_TURN_SRV;
-//                    tc.snd_len = sizeof(update_issue_req_t);
-//                    memcpy(tc.snd_data,snd_buff, tc.snd_len);
-//                    strcpy(tc.ip, sdp.addr);
-//                    tc.port = sdp.port;
-//
-//                    add_send_data(tc);
-//
-//                    sem_post(&sem_sendto_client);
-//					
-//                    memset(snd_buff, 0, sizeof(snd_buff));
-//                }
-//            }
-//            else
-//            {
-//                LOG4CPLUS_DEBUG(LOG_WEBSERVICES, "no mobile user");
-//            }
-//            Msg.result = "0";
-//            Msg.reason = "Success";
-//        }
-//        while(0);
-
+        Msg.result = "0";
+        Msg.reason = "Success";
     }
     else
     {
@@ -883,7 +584,7 @@ int CHttpServerWebService::Do_getDeviceStateList( CTSHomeWebServiceIF &JsonData)
     CIPC_getDeviceStateList  __op;
     JsonData.Decode(__op);
     __op.dump();
-	m_sessionId = __op.sessionId;
+    m_sessionId = __op.sessionId;
     // 开始使用数据
 
     // 构造返回消息
@@ -927,32 +628,7 @@ int CHttpServerWebService::sendDeviceCtrlMsg(char *ip,
         const u_char value_len,
         const int32_t session_id)
 {
-//    device_control_req_enocean ctrl;
-//    memset(&ctrl, 0, sizeof(device_control_req_enocean));
-//    int body_len = sizeof(device_control_req_enocean) - sizeof(remote_header_t);
-//    init_common_header(&ctrl.header, 0, TSHOME_PROTOCOL_VERSION, body_len, COMMON_DEVICE_CONTROL,
-//                       REQUEST, SERVER);
-//    ctrl.read_write= WRITE;
-//    ctrl.data_len = value_len;
-//
-//    ctrl.data = atoi(value); //待修正后解注error: incompatible types in assignment of ??int?ˉ to ??unsigned char [0]?ˉ
-//
-//    ctrl.datapoint_id = htonl(atoi(operate_id));
-//    ctrl.session_id = htonl(session_id);//add htonl 10.24
-//
-//	send_to_client_data tc;
-//    memset(&tc, 0, sizeof(send_to_client_data));
-//    tc.srv = static_cast<CHandlerWebService&>(Handler()).GetPJ_server();
-//    tc.snd_len = sizeof(device_control_req_enocean);
-//    memcpy(tc.snd_data, &ctrl, tc.snd_len);
-//
-//    strcpy(tc.ip, ip);
-//    tc.port = port;
-//
-//    add_send_data(tc);
-//
-//    sem_post(&sem_sendto_client);
-	
+
     return 0;
 }
 
@@ -962,59 +638,23 @@ int CHttpServerWebService::Do_controlDevice(CTSHomeWebServiceIF &JsonData)
     CIPC_controlDevice_operate op;
     JsonData.Decode(__op);
     __op.dump();
-	m_sessionId = __op.sessionId;
-	
-	/*
-	  *构造返回消息，此接口只负责发送控制请求报文和回复错误信息。
-	  *控制结果(响应消息)等收到来自主机的回复后再发送给web端。
-	  *所以，该接口需要保存一个web通信对象和主机的配对关系，
-	  *在收到主机的回复消息时，便于查询相关的web通信对象。
-	  */
-	CTSHomeWebServiceIF __CTSHomeWebServiceIF;
+    m_sessionId = __op.sessionId;
+
+    /*
+      *构造返回消息，此接口只负责发送控制请求报文和回复错误信息。
+      *控制结果(响应消息)等收到来自主机的回复后再发送给web端。
+      *所以，该接口需要保存一个web通信对象和主机的配对关系，
+      *在收到主机的回复消息时，便于查询相关的web通信对象。
+      */
+    CTSHomeWebServiceIF __CTSHomeWebServiceIF;
     CIPC_controlDevice_ACK Msg;
 
     if(static_cast<CHandlerWebService&>(Handler()).AuthSession(m_sessionId, EAW_CTRLDEVICE) ==0)
     {
-//        int vecSize = __op.m_operate.size();
-//        std::string homeIdStr = __op.homeIdStr;
-//        int homeId = atoi(homeIdStr.c_str());
-//        cout << "vecSize=" << vecSize << endl;
-//        ts_user host_user;
-//        user_sdp sdp;
-//        //search the host user.
-//        std::vector<ts_user> host_list;
-//        int result = g_udb_mgr.home.get_hosts(homeId, host_list);
-//        if(result == TS_SUCCESS && host_list.size() > 0)
-//        {
-//            // get the only one host user in this list.
-//            host_user = host_list[0];
-//            sdp = host_user.sdpVec[0];
-//
-//            for(int i = 0 ; i < vecSize ; i++)
-//            {
-//                op = __op.m_operate[i];
-//
-//                LOG4CPLUS_DEBUG(LOG_WEBSERVICES, "NO." << i << ", op.dataPoint:"<< op.dataPoint<< ", op.dataLen="<<op.dataLen<<",op.data="<<op.data);
-//                sendDeviceCtrlMsg(sdp.addr, sdp.port, op.dataPoint.c_str(), op.data.c_str(), atoi(op.dataLen.c_str()), host_user.session_id);
-//				//CIPC_controlDevice_ACK_Operate ack_op;
-//
-//				//Msg.m_operate.push(ack_op);
-//			}
-			//根据前面所述逻辑，此时控制命令已发送完，
-			//无需回复控制结果
-			//立即返回方法
-            Msg.result  = "0" ;
-            Msg.reason  = "OK" ;
-            return 0;
-//        }
-//        else
-//        {
-//            //主机不在线时，立即回复失败。
-//            Msg.result= "1";
-//            Msg.reason= "host_offline";
-//            LOG4CPLUS_DEBUG(LOG_WEBSERVICES, "host offline");
-//        }
 
+        Msg.result  = "0" ;
+        Msg.reason  = "OK" ;
+        return 0;
     }
     else
     {

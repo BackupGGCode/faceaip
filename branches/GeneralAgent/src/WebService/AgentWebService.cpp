@@ -155,10 +155,15 @@ BOOL CAgentWebService::Stop()
 
 void CAgentWebService::SetDefaultConfig()
 {
+#ifdef USE_EZCONFIG
     CConfigWebService __cfg;
     __cfg.update();
 
     SetGeneralHttpAgent((unsigned short)(__cfg.getConfig().iWebServicePort));
+#else
+    SetGeneralHttpAgent((unsigned short)(SMARTHOMETELCOMCTRLSERVER_PORT));
+
+#endif
 }
 
 void CAgentWebService::ThreadProc()
@@ -168,12 +173,3 @@ void CAgentWebService::ThreadProc()
         Run();
     } //while (m_bLoop)
 }
-
-//void CAgentWebService::SetPJ_turn_srv(pj_turn_srv *ppj_turn_srv)
-//{
-//	m_pHandlerWebService->SetPJ_turn_srv(ppj_turn_srv);
-//}
-//pj_turn_srv * CAgentWebService::GetPJ_server()
-//{
-//	return m_pHandlerWebService->GetPJ_server();
-//}

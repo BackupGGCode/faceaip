@@ -1,4 +1,18 @@
-# Copyright (C) 2012  ezlibs.com
+#-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
+#
+# Makefile.Client - Z:\Dropbox\stock\trunk\code\appmodule\GeneralAgent\build\
+#
+# Copyright (C) 2013 ezlibs.com, All Rights Reserved.
+#
+# $Id: Makefile.Client 1 2013-06-09 04:44:29 WuJunjie Exp $
+#
+# explain
+#      for tcp client
+#
+# Update:
+#    2013-06-09 04:44 WuJunjie Create
+#
+#-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
 #
 # platforms:
 PLATFORM = linux-x86-32

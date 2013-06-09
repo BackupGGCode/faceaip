@@ -137,16 +137,6 @@ Socket * CHandlerWebService::GetSocketBySessionID(std::string strSessionID)
     return NULL;
 }
 
-
-//void CHandlerWebService::SetPJ_turn_srv(pj_turn_srv *ppj_turn_srv)
-//{
-//    m_Pj_turn_srv = ppj_turn_srv;
-//}
-//pj_turn_srv * CHandlerWebService::GetPJ_server()
-//{
-//    return m_Pj_turn_srv;
-//}
-
 int CHandlerWebService::newSession(const CSession &newss)
 {
     DBG_CODE(
@@ -190,5 +180,3 @@ int CHandlerWebService::AuthSession(std::string strSession, int iAccessId)
 
     return -1;
 }
-
-

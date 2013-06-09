@@ -18,9 +18,7 @@
 #define _AgentWebService_H
 
 #include "CommonInclude.h"
-//#include "GeneralAgentDef.h" /* port etc */
 #include "EZThread.h"
-//#include "IniFile.h"
 
 #include <time.h>
 #include <vector>
@@ -69,8 +67,6 @@ public:
     int Send2Socket(std::string strSocketName, const char *pData, size_t Len);
     	
     CHandlerWebService *GetWebServiceHandler();
-//	void SetPJ_turn_srv(pj_turn_srv *ppj_turn_srv);
-//    pj_turn_srv * GetPJ_server();
 
 private:
     AgentWebServiceCfg_T m_ConfigGeneralAgent;

@@ -41,8 +41,6 @@ public:
     Socket *GetSocketByName(std::string strServerName);
 
     Socket *GetSocketBySessionID(std::string strSessionID);
-//    void SetPJ_turn_srv(pj_turn_srv *ppj_turn_srv);
-//    pj_turn_srv * GetPJ_server();
 
     // ÐÂÑéÖ¤
     int newSession(const CSession &newss);
@@ -53,8 +51,6 @@ public:
 private:
     // strSessionId
     CSessionManager m_requestSession;
-
-    //pj_turn_srv * m_Pj_turn_srv;
 };
 
 #endif // _HandlerWebService_H

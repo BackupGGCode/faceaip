@@ -45,11 +45,6 @@ public:
     CSession();
     ~CSession();
 
-    //int session_id;
-    //int profile_id;
-    //int subsystem_id;
-    //int access_id;
-    //int systemState_id;
     std::vector<int> m_vAccess;
 
     std::string m_strSession;
@@ -58,8 +53,6 @@ public:
     time_t m_ttLastRequestTime;
 
     int m_iTimeout;
-
-    //std::string ToString(int iItem=2, bool tostring = false);
 
     /* = */
     CSession& operator = (const CSession& obj);

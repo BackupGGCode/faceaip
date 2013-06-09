@@ -22,9 +22,6 @@
 #include <ListenSocket.h>
 #include <StdoutLog.h>
 #include "TSHomeWebServiceIF.h"
-//#include "SocketMsgQue.h"
-
-//#include "app.h"
 
 #define MY_SESSION_ID_LEN 36
 
@@ -52,15 +49,11 @@ public:
     virtual void OnUnknowRequest();
     std::string getMySessionId();
 
-//	void SetPJ_turn_srv(pj_turn_srv *);
-//    pj_turn_srv * GetPJ_server();
 private:
     std::string m_strBody;
 	std::string m_requestPrefix;
 	std::string m_sessionId;
-    //pj_turn_srv *m_pPJ_TURN_SRV;
 	int reportId;
-//    CSocketMsgQue* m_pSocketMsgQue;
 	
     int ReturnHttpMsg(const std::string &strMsg, const std::string &matchRequest="");
     int sendDeviceCtrlMsg(char *ip,

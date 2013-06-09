@@ -72,14 +72,16 @@ void GeneralAgentHandler::List(TcpSocket *sendto)
         Socket *p = (*it).second;
         TcpSocket *p3 = dynamic_cast<TcpSocket *>(p);
 #ifdef USE_GENERALAGENTUDPSOCKETSERVER
+
         CGeneralAgentUdpSocket *pCGeneralAgentUdpSocket = dynamic_cast<CGeneralAgentUdpSocket *>(p);
 #else
+
         Socket *pCGeneralAgentUdpSocket = NULL;
 #endif
 
         if (p->GetRemotePort()<=0 || pCGeneralAgentUdpSocket)
         {
-        //__trip;
+            //__trip;
             continue;
         }
 
@@ -169,7 +171,9 @@ Socket * GeneralAgentHandler::GetSocketByName(std::string strServerName)
         }
         else
         {
-            std::cout << "want:" << strServerName << " Me:" << p->GetSockName() << std::endl;
+            DBG_CODE(
+                std::cout << "want:" << strServerName << " Me:" << p->GetSockName() << std::endl;
+            );
         }
 
         //tprintf(sendto, "%-3d %15s:%-5d", ii, p -> GetRemoteAddress().c_str(),p -> GetRemotePort());
