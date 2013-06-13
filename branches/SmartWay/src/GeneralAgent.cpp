@@ -689,8 +689,5 @@ int CGeneralAgent::InitializeLogs()
     Logger::getRoot().addAppender(append_1);
     NDCContextCreator _context(LOG4CPLUS_TEXT("tss"));
 
-    //pj_log_set_level(10);
-    //pj_log_set_log_func( __pj_log_func );
-
     return 0;
 }
