@@ -95,22 +95,16 @@ void CConfigManager::initialize(std::string mfile, std::string sfile)
 
     /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
     // 添加通用配置
-    m_mapTranslate.insert(valueType(CFG_NAME_General, CFG_IDX_General));
-    setupConfig(CFG_NAME_General, m_configGeneral);
+    setupConfig(CFG_NAME_General, CFG_IDX_General, m_configGeneral);
 
-    m_mapTranslate.insert(valueType(CFG_NAME_TcpSocketServer, CFG_IDX_TcpSocketServer));
-    setupConfig(CFG_NAME_TcpSocketServer, m_configTcpSocketServer);
+    setupConfig(CFG_NAME_TcpSocketServer, CFG_IDX_TcpSocketServer, m_configTcpSocketServer);
 
-    m_mapTranslate.insert(valueType(CFG_NAME_TcpSocketConnector, CFG_IDX_TcpSocketConnector));
-    setupConfig(CFG_NAME_TcpSocketConnector, m_configTcpSocketConnector);
-    m_mapTranslate.insert(valueType(CFG_NAME_ConsoleOverTcp, CFG_IDX_ConsoleOverTcp));
-    setupConfig(CFG_NAME_ConsoleOverTcp, m_configConsoleOverTcp);
+    setupConfig(CFG_NAME_TcpSocketConnector, CFG_IDX_TcpSocketConnector, m_configTcpSocketConnector);
+    setupConfig(CFG_NAME_ConsoleOverTcp, CFG_IDX_ConsoleOverTcp, m_configConsoleOverTcp);
 
-    m_mapTranslate.insert(valueType(CFG_NAME_DataBase, CFG_IDX_DataBase));
-    setupConfig(CFG_NAME_DataBase, m_configDB);
+    setupConfig(CFG_NAME_DataBase, CFG_IDX_DataBase, m_configDB);
 
-    m_mapTranslate.insert(valueType(CFG_NAME_WebService, CFG_IDX_WebService));
-    setupConfig(CFG_NAME_WebService, m_configWebService);
+    setupConfig(CFG_NAME_WebService, CFG_IDX_WebService, m_configWebService);
     /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
     // 初始化完毕, 保存一次配置
     CConfigMan::saveFile();
