@@ -123,7 +123,7 @@ void CGeneralAgentTcpSocket::OnRawData(const char *buf,size_t len)
 {
     m_tOnData = time(NULL);
     __fline;
-    printf("CGeneralAgentTcpSocket::OnRawData:%ul\n", len);
+    printf("CGeneralAgentTcpSocket::OnRawData:%d\n", (int)len);
 
     dumpBuffer(stdout
                , (unsigned char *)buf, len,
