@@ -30,6 +30,6 @@ template<> void exchangeTable<CONFIG_GENERAL>(CConfigExchange& xchg, CConfigTabl
 	xchg.exchange(table,"maxLogSize", config.maxFileSize,  0, 50*1024*1024 ,9*1024*1024);
 	xchg.exchange(table,"maxLogFile", config.maxBackupIndex,  0, 10 ,6);
 
-	xchg.exchange(table,"portConsoleOverTcp", config.portConsoleOverTcp,  0, 65535, 19023);
+	//xchg.exchange(table,"portConsoleOverTcp", config.portConsoleOverTcp,  0, 65535, 19023);
 }
 
