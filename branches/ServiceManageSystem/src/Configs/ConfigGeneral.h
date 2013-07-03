@@ -34,7 +34,7 @@ typedef struct tagCONFIG_GENERAL
 	int maxBackupIndex;
 
 	// 调试端口
-	int portConsoleOverTcp;
+	//int portConsoleOverTcp;
 } CONFIG_GENERAL;
 
 //1 -结构数目
