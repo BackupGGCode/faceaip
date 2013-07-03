@@ -30,4 +30,7 @@ void exchangeTable<ConfigWebService>(CConfigExchange& xchg, CConfigTable& table,
     xchg.exchange(table, "notifyUpdate", config.strURL_notifyUpdate, "/WebService/notifyUpdate");
     xchg.exchange(table, "getDeviceStateList", config.strURL_getDeviceStateList, "/WebService/getDeviceStateList");
     xchg.exchange(table, "controlDevice", config.strURL_controlDevice, "/WebService/controlDevice");
+
+    xchg.exchange(table, "getPubIP4", config.strURL_getPubIP4, "/ezlibs/getPubIP4");
 }
+
