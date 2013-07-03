@@ -697,10 +697,14 @@ int CHttpServerPubService::Do_getPubIP4( CTSHomeWebServiceIF &JsonData)
     }
     else
     {
-        strSendBuf = 	GetRemoteAddress();
+        //strSendBuf = 	GetRemoteAddress();
+	strSendBuf = 	"PUIP="+GetRemoteAddress()+" ";
+
     }
 
     ReturnHttpMsg(strSendBuf);
+
+    SetCloseAndDelete();
 
     return 0;
 }
