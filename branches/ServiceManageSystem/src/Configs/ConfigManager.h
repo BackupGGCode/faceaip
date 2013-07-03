@@ -27,6 +27,7 @@
 
 #include "ConfigDatabase.h"
 #include "ConfigWebService.h"
+#include "ConfigPubService.h"
 
 typedef enum __cfg_index_t {
     CFG_IDX_General =  0,	// 普通
@@ -35,6 +36,7 @@ typedef enum __cfg_index_t {
     CFG_IDX_ConsoleOverTcp,				// ConsoleOverTcp 配置
     CFG_IDX_DataBase,				// 数据库配置
     CFG_IDX_WebService,				//
+    CFG_IDX_PubService,				//
     CFG_IDX_ALL,			// 实际没有这种配置， 便于恢复全部等用
 }CFG_INDEX;
 
@@ -44,6 +46,7 @@ typedef enum __cfg_index_t {
 #define CFG_NAME_ConsoleOverTcp "ConsoleOverTcp"
 #define CFG_NAME_DataBase "DataBase"
 #define CFG_NAME_WebService "WebService"
+#define CFG_NAME_PubService "PubService"
 
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
@@ -56,7 +59,7 @@ public:
     // 不传参数使用默认名字，且为单文件方式
     // 传一个参数使用该名字，为单文件方式
     // 传两个参数使用该名字，为双文件方式
-    void initialize(std::string mfile="", std::string sfile="");
+    int initialize(std::string mfile="", std::string sfile="");
 
     //! 设置默认配置，供GUI界面和网络模块调用
     int SetDefaultConfig(int iConfigType);
@@ -72,6 +75,7 @@ private:
 
     CConfigDatabase			m_configDB;	/*!< dsd */
     CConfigWebService			m_configWebService;	/*!< WebService */
+    CConfigPubService			m_configPubService;	/*!< PubService */
 
     /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 

@@ -24,12 +24,15 @@
 #ifdef USE_MY_WEBSERVICE
 #include "WebService/AgentWebService.h"
 #endif
+#ifdef USE_PUBSERVICE
+#include "PubService/AgentPubService.h"
+#endif
 #include "GeneralAgent.h"
 
 #ifdef USE_EZCONFIG
 // config fname
-const char * const ConfigFile_1= "gm.cfg";
-const char * const ConfigFile_2 = "gm.cfg.duplicate";
+const char * const ConfigFile_1= "ezlibs-sms.cfg";
+const char * const ConfigFile_2 = "ezlibs-sms.cfg.duplicate";
 #endif //USE_EZCONFIG
 
 const char * const copy_right = "@(#) Copyright (c) 2013 ezlibs.com.  All rights reserved";
@@ -82,6 +85,10 @@ int main(int argc, char *argv[])
 #ifdef USE_MY_WEBSERVICE
     g_AgentWebService.Start();
 #endif
+#ifdef USE_PUBSERVICE
+    g_AgentPubService.Start();
+#endif
+
 
     // mainÏß³ÌµÈ´ý
     while (1)

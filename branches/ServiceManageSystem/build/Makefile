@@ -18,7 +18,7 @@
 PLATFORM = linux-x86-32
 #PLATFORM = linux-hi3515
 #PLATFORM = linux-arm
-PLATFORM = linux-x86-64-centos5
+#PLATFORM = linux-x86-64-centos5
 
 VERSION =	1.3
 DIFF_VERSION =	1.0
@@ -62,7 +62,8 @@ OBJS_CONFIGS	= \
 		$(GENERALAGENT_BASEDIR_SRC)/Configs/ConfigTcpSocketConnector.o \
 		$(GENERALAGENT_BASEDIR_SRC)/Configs/ConfigConsoleOverTcp.o \
 		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigDatabase.o \
-		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigWebService.o
+		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigWebService.o\
+		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigPubService.o
 
 ## json
 CFLAGS += -I$(EZLIBS_BASEDIR_LIBS)/include/json
@@ -127,7 +128,16 @@ OBJS_GENERALAGENT += \
 		${GENERALAGENT_BASEDIR_SRC}/WebService/TSHomeWebServiceIF.o \
 		${GENERALAGENT_BASEDIR_SRC}/WebService/HandlerWebService.o \
 		${GENERALAGENT_BASEDIR_SRC}/WebService/HttpServerWebService.o \
-		${GENERALAGENT_BASEDIR_SRC}/WebService/AgentWebService.o 
+		${GENERALAGENT_BASEDIR_SRC}/WebService/AgentWebService.o
+
+#######################################################################################################
+##PuService服务器
+CFLAGS += -DUSE_PUBSERVICE
+
+OBJS_GENERALAGENT += \
+		${GENERALAGENT_BASEDIR_SRC}/PubService/HandlerPubService.o \
+		${GENERALAGENT_BASEDIR_SRC}/PubService/HttpServerPubService.o \
+		${GENERALAGENT_BASEDIR_SRC}/PubService/AgentPubService.o
 
 ##############################################################################
 #use ezutil library for http_parse
@@ -161,9 +171,10 @@ DIST_MAINTHREAD = generalAgentMain
 OBJS_MULTITHREAD_P = $(GENERALAGENT_BASEDIR_SRC)/main_multi.o
 OBJS_MULTITHREAD_P += $(OBJS_GENERALAGENT)
 OBJS_MULTITHREAD_P += $(OBJS_CONFIGS)
-DIST_MULTITHREAD = generalAgentMulti
+DIST_EZLIBS_SMS = ezlibs-SMS-$(PLATFORM)
 
-DIST =	$(DIST_MULTITHREAD)
+DIST =	$(DIST_EZLIBS_SMS)
+#可以编译多个
 #DIST +=	$(DIST_MAINTHREAD)
 
 all: $(DIST)
@@ -171,7 +182,7 @@ all: $(DIST)
 $(DIST_MAINTHREAD):$(OBJS_MAINTHREAD_P)
 		$(CPP) -o $@ $^ $(LIBS)
 
-$(DIST_MULTITHREAD):$(OBJS_MULTITHREAD_P)
+$(DIST_EZLIBS_SMS):$(OBJS_MULTITHREAD_P)
 		$(CPP) -o $@ $^ $(LIBS)
 
 tar:	clean

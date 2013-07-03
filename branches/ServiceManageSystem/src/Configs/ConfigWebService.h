@@ -32,6 +32,7 @@ typedef struct tagConfigWebService
     std::string strURL_notifyUpdate                    ;
     std::string strURL_getDeviceStateList               ;
     std::string strURL_controlDevice                    ;
+    std::string strURL_getPubIP4                    ;
 
 }
 ConfigWebService;

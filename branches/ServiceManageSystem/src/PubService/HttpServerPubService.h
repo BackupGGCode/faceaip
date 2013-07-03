@@ -1,10 +1,10 @@
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 /*
- * HttpServerWebService.h - _explain_
+ * HttpServerPubService.h - _explain_
  *
  * Copyright (C) 2011 ezlibs.com, All Rights Reserved.
  *
- * $Id: HttpServerWebService.h 5884 2013-01-29 03:20:53Z WuJunjie $
+ * $Id: HttpServerPubService.h 5884 2013-01-29 03:20:53Z WuJunjie $
  *
  *  Explain:
  *     -explain-
@@ -14,22 +14,22 @@
  */
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
-#ifndef _HttpServerWebService_H
-#define _HttpServerWebService_H
+#ifndef _HttpServerPubService_H
+#define _HttpServerPubService_H
 
 #include <HttpdSocket.h>
 #include <SocketHandler.h>
 #include <ListenSocket.h>
 #include <StdoutLog.h>
-#include "TSHomeWebServiceIF.h"
+#include "../WebService/TSHomeWebServiceIF.h"
 
 #define MY_SESSION_ID_LEN 36
 
-class CHttpServerWebService : public HttpdSocket
+class CHttpServerPubService : public HttpdSocket
 {
 public:
-    CHttpServerWebService(ISocketHandler& h);
-    ~CHttpServerWebService();
+    CHttpServerPubService(ISocketHandler& h);
+    ~CHttpServerPubService();
 
     void Init();
 
@@ -90,5 +90,5 @@ private:
 
 };
 
-#endif // _HttpServerWebService_H
+#endif // _HttpServerPubService_H
 
