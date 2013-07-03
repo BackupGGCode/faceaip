@@ -115,5 +115,7 @@ int CConfigManager::initialize(std::string mfile, std::string sfile)
     /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
     // 初始化完毕, 保存一次配置
     CConfigMan::saveFile();
+
+    return 0;
 }
 
