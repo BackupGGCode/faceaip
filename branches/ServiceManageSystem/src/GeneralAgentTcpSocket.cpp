@@ -15,11 +15,31 @@
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
 
-#include "CommonInclude.h"
-#include "GeneralAgentTcpSocket.h"
-
 #include <string.h> /* memset */
 #include <str_opr.h> /* dump */
+
+#include "GeneralAgentTcpSocket.h"
+
+#ifndef _DEBUG_THIS
+//    #define _DEBUG_THIS
+#endif
+#ifdef _DEBUG_THIS
+	#define DEB(x) x
+	#define DBG(x) x
+#else
+	#define DEB(x)
+	#define DBG(x)
+#endif
+
+#ifndef __trip
+	#define __trip printf("-W-%d::%s(%d)\n", (int)time(NULL), __FILE__, __LINE__);
+#endif
+#ifndef __fline
+	#define __fline printf("%s(%d)--", __FILE__, __LINE__);
+#endif
+
+#define ARG_USED(x) (void)&x;
+
 CGeneralAgentTcpSocket::CGeneralAgentTcpSocket(ISocketHandler& h, std::string strSocketName) : TcpSocket(h)
 {
     // 由Handle自己管理
@@ -122,13 +142,14 @@ void CGeneralAgentTcpSocket::OnRead()
 void CGeneralAgentTcpSocket::OnRawData(const char *buf,size_t len)
 {
     m_tOnData = time(NULL);
+DBG(
     __fline;
     printf("CGeneralAgentTcpSocket::OnRawData:%d\n", (int)len);
 
     dumpBuffer(stdout
                , (unsigned char *)buf, len,
                SHOW_ASCII | SHOW_BINAR | SHOW_HEXAD | SHOW_LINER);
-
+);
     //////////
     //有数据就调用， 另一种方式
     OnCommand((char *)buf, (unsigned int)len);
@@ -137,13 +158,13 @@ void CGeneralAgentTcpSocket::OnRawData(const char *buf,size_t len)
 
 void CGeneralAgentTcpSocket::OnCommand(char *pCmdData, unsigned int ulCmdDataLen)
 {
-    DBG_CODE( printf("CGeneralAgentTcpSocket::OnCommand, len:%d\n", ulCmdDataLen); );
+    DBG( printf("CGeneralAgentTcpSocket::OnCommand, len:%d\n", ulCmdDataLen); );
 }
 
 #ifdef USE_DATAPARSE_EXAMPLE
 void CGeneralAgentTcpSocket::OnCommand_WifiAgent(WIFI_AGENT_PROTOCOL_HEAD *pCmd, unsigned char *pData)
 {
-    DBG_CODE( printf("OnCommand_WifiAgent %d %d %d\n"
+    DBG( printf("OnCommand_WifiAgent %d %d %d\n"
                      , pCmd->u8CmdOrStatus
                      , pCmd->u8AddOrCommand
                      , pCmd->u8DataLen); );

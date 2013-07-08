@@ -19,6 +19,26 @@
 #include <assert.h>
 #include "TSHomeWebServiceIF.h"
 
+#ifndef _DEBUG_THIS
+//    #define _DEBUG_THIS
+#endif
+#ifdef _DEBUG_THIS
+	#define DEB(x) x
+	#define DBG(x) x
+#else
+	#define DEB(x)
+	#define DBG(x)
+#endif
+
+#ifndef __trip
+	#define __trip printf("-W-%d::%s(%d)\n", (int)time(NULL), __FILE__, __LINE__);
+#endif
+#ifndef __fline
+	#define __fline printf("%s(%d)--", __FILE__, __LINE__);
+#endif
+
+#define ARG_USED(x) (void)&x;
+
 CTSHomeWebServiceIF::CTSHomeWebServiceIF()
 {
     m_bDataValid = false;
