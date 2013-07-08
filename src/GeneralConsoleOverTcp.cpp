@@ -82,7 +82,7 @@ CGeneralConsoleOverTcp::CGeneralConsoleOverTcp(ISocketHandler& h, std::string st
 
     m_enLoginStatus = LoginStatusNotLogin;
 
-    //SetSockName(strSocketName);
+    SetSockName(strSocketName);
 
     m_strLastCmd = "";
 

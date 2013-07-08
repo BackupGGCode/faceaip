@@ -14,10 +14,31 @@
  */
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
-#include "CommonInclude.h"
+//#include "CommonInclude.h"
 #include <string.h>
+#include <str_opr.h>
 
 #include "GeneralAgentTcpSocketServer.h"
+
+#ifndef _DEBUG_THIS
+    #define _DEBUG_THIS
+#endif
+#ifdef _DEBUG_THIS
+	#define DEB(x) x
+	#define DBG(x) x
+#else
+	#define DEB(x)
+	#define DBG(x)
+#endif
+
+#ifndef __trip
+	#define __trip printf("-W-%d::%s(%d)\n", (int)time(NULL), __FILE__, __LINE__);
+#endif
+#ifndef __fline
+	#define __fline printf("%s(%d)--", __FILE__, __LINE__);
+#endif
+
+#define ARG_USED(x) (void)&x;
 
 CGeneralAgentTcpSocketServer::CGeneralAgentTcpSocketServer(ISocketHandler& h, std::string strSocketName)
         :CGeneralAgentTcpSocket(h, strSocketName)
@@ -37,13 +58,13 @@ void CGeneralAgentTcpSocketServer::OnDisconnect()
 void CGeneralAgentTcpSocketServer::OnCommand(char *pCmdData
         , unsigned int ulCmdDataLen)
 {
-    DBG_CODE( printf("CGeneralAgentTcpSocketServer::OnCommand, len:%d\n", ulCmdDataLen); );
+    DBG( printf("CGeneralAgentTcpSocketServer::OnCommand, len:%d\n", ulCmdDataLen); );
     // 测试用， 关闭自己
     if (pCmdData && ulCmdDataLen==1 && *pCmdData=='q')
     {
         SetCloseAndDelete();
 
-        DBG_CODE( printf("CGeneralAgentTcpSocketServer::OnCommand q, SetCloseAndDelete\n"); );
+        DBG( printf("CGeneralAgentTcpSocketServer::OnCommand q, SetCloseAndDelete\n"); );
     }
 
     // 测试用， echo
@@ -54,6 +75,16 @@ void CGeneralAgentTcpSocketServer::OnCommand(char *pCmdData
         SendBuf(strEchoBuf, strlen(strEchoBuf)+1 );
     }
     //////////
+
+    DBG(
+        __fline;
+        printf("CGeneralAgentTcpSocket::OnRawData:%d\n", (int)ulCmdDataLen);
+
+        dumpBuffer(stdout
+                   , (unsigned char *)pCmdData, ulCmdDataLen,
+                   SHOW_ASCII | SHOW_BINAR | SHOW_HEXAD | SHOW_LINER);
+    );
+
 }
 
 #ifdef USE_DATAPARSE_EXAMPLE
