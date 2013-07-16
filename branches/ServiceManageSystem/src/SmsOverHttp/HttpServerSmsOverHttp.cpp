@@ -312,9 +312,9 @@ int CHttpServerSmsOverHttp::Do_TestIF( CSmsStack &JsonData)
 }
 
 // WEB子系统向连辅子系统注册接口地址的接口
+// curl http://sms.ezlibs.com:60088/SmsOverHttp/registerURL -d "{ \"AuthCode\" : \"VAuthCode\", \"AuthName\" : \"VAuthName\", \"LocalDateTime\" : \"VLocalDateTime\", \"LocalIp\" : \"VLocalIp\", \"Password\" : \"VPassword\", \"ProductID\" : \"VProductID\" }\n"
 int CHttpServerSmsOverHttp::Do_registerURL( CSmsStack &JsonData)
 {
-
     //    LOG4CPLUS_DEBUG(LOG_WEBSERVICES, "Do_registerURL");
     CSmsMsg_RegisterReq __reqMsg;
     

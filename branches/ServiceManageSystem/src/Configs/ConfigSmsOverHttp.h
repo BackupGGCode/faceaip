@@ -24,10 +24,12 @@ typedef struct tagConfigSmsOverHttp
     int iSmsOverHttpPort;// ·þÎñÆ÷¶Ë¿Ú
 
     // URL of webservice
+    std::string strURL_registerURL               ;
+	
+    // flowing reserved
     std::string strURL_requestAuth							;
     std::string strURL_requestAuthByHost							;
     std::string strURL_heartbeat   ;
-    std::string strURL_registerURL               ;
     std::string strURL_stopHostNetwork               ;
     std::string strURL_notifyUpdate                    ;
     std::string strURL_getDeviceStateList               ;
