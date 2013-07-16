@@ -149,12 +149,12 @@ void CTestMan::testEncodeCAckMsgSession()
     }
 }
 
-void CTestMan::testED_CSmsMsg_ReqRegister							   ()
+void CTestMan::testED_CSmsMsg_RegisterReq							   ()
 {
     CSmsStack __CSmsStack;
 
     //std::cout << endl << "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-" << std::endl;
-    CSmsMsg_ReqRegister Msg;
+    CSmsMsg_RegisterReq Msg;
     Msg.ProductID		= "VProductID";
     Msg.AuthCode 	= "VAuthCode";
     Msg.AuthName		= "VAuthName";
@@ -168,7 +168,7 @@ void CTestMan::testED_CSmsMsg_ReqRegister							   ()
 
     __CSmsStack.Encode(Msg);
 
-    //std::cout << __CSmsStack.ToString() << std::endl;
+    std::cout << __CSmsStack.ToString() << std::endl;
     //std::cout << __CSmsStack.ToString().size() << std::endl;
     //std::cout << strEncoded.size() << std::endl;
     //std::cout << strEncoded << std::endl;
@@ -185,10 +185,10 @@ void CTestMan::testED_CSmsMsg_ReqRegister							   ()
     }
     */
     // decode after encode
-    CSmsMsg_ReqRegister Msg2;
+    CSmsMsg_RegisterReq Msg2;
     __CSmsStack.Decode(Msg2);
     CPPUNIT_ASSERT(Msg.ProductID == "VProductID" );
     
-    Msg2.dump();
+    //Msg2.dump();
 }
 

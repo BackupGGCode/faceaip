@@ -42,12 +42,14 @@ public :
 
     virtual void Encode(const CAckMsgSimple                                &Msg);
     virtual void Encode(const CAckMsgSession                               &Msg);
-    virtual void Encode(const CSmsMsg_ReqRegister                        &Msg);
+    virtual void Encode(const CSmsMsg_RegisterReq                        &Msg);
+    virtual void Encode(const CSmsMsg_RegisterAck                        &Msg);
     
     // 下列Msg， 调用者自行保证初始化， 接口内部不初始化（vector）
     bool Decode(CAckMsgSimple                                &Msg);
     bool Decode(CAckMsgSession                               &Msg);
-    bool Decode(CSmsMsg_ReqRegister                        &Msg);
+    bool Decode(CSmsMsg_RegisterReq                        &Msg);
+    bool Decode(CSmsMsg_RegisterAck                        &Msg);
 
     const Json::Value &GetValue() const;
 

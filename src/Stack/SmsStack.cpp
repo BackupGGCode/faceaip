@@ -180,7 +180,7 @@ bool CSmsStack::Decode(CAckMsgSession &Msg)
     return true;
 }
 
-void CSmsStack::Encode(const CSmsMsg_ReqRegister                                &Msg)
+void CSmsStack::Encode(const CSmsMsg_RegisterReq                                &Msg)
 {
     Json::Value var;
 
@@ -196,7 +196,7 @@ void CSmsStack::Encode(const CSmsMsg_ReqRegister                                
 
     setValid();
 }
-bool CSmsStack::Decode(CSmsMsg_ReqRegister &Msg)
+bool CSmsStack::Decode(CSmsMsg_RegisterReq &Msg)
 {
 
     Msg.ProductID    = m_JsonValue["ProductID"]   .asString();
@@ -206,5 +206,50 @@ bool CSmsStack::Decode(CSmsMsg_ReqRegister &Msg)
 
     Msg.m_LocalStatus.LocalIp = m_JsonValue["LocalIp"].asString();
     Msg.m_LocalStatus.LocalDateTime = m_JsonValue["LocalDateTime"].asString();
+    return true;
+}
+
+void CSmsStack::Encode(const CSmsMsg_RegisterAck                        &Msg)
+{
+    Json::Value var;
+    unsigned int ii;
+
+    var["session"] = Msg.m_Session;
+    var["result"] = Msg.m_ackInfo.result;
+    var["reason"] = Msg.m_ackInfo.reason;
+
+    Json::Value operate_all;//store all pieces
+    for (ii=0; ii<Msg.m_Service.size(); ii++)
+    {
+        Json::Value operate;//store all pieces
+
+        operate["ServiceName"]     = Msg.m_Service[ii].ServiceName       ;
+        operate["ServiceLocation"]  = Msg.m_Service[ii].ServiceLocation    ;
+
+        operate_all.append(operate);
+    }
+    var["Service"] = operate_all;
+
+    m_JsonValue = var;
+    setValid();
+}
+
+bool CSmsStack::Decode(CSmsMsg_RegisterAck &Msg)
+{
+    Msg.m_ackInfo.result = m_JsonValue["result"].asString();
+    Msg.m_ackInfo.reason = m_JsonValue["reason"].asString();
+    Msg.m_Session = m_JsonValue["session"].asString();
+    
+    const Json::Value arrayOperate = m_JsonValue["Service"];
+
+    for (unsigned int i = 0; i < arrayOperate.size(); i++)
+    {
+        CSmsMsg_ServiceAgent _operate;
+        _operate.ServiceName       = arrayOperate[i]["ServiceName"]     .asString();
+        _operate.ServiceLocation    = arrayOperate[i]["ServiceLocation"]  .asString();
+
+        Msg.m_Service.push_back(_operate);
+    }
+    
     return true;
 }

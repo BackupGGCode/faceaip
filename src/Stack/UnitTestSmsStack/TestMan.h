@@ -27,7 +27,7 @@ class CTestMan : public CppUnit::TestFixture
 
     CPPUNIT_TEST( testEncodeCAckMsgSimple );
     CPPUNIT_TEST( testEncodeCAckMsgSession );
-    CPPUNIT_TEST( testED_CSmsMsg_ReqRegister                         );
+    CPPUNIT_TEST( testED_CSmsMsg_RegisterReq                         );
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -36,7 +36,7 @@ public:
     void testEncodeCAckMsgSimple();
     void testEncodeCAckMsgSession();
 
-    void testED_CSmsMsg_ReqRegister                        ();
+    void testED_CSmsMsg_RegisterReq                        ();
 
 
     void setUp();

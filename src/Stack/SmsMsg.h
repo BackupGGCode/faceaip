@@ -121,19 +121,19 @@ public:
 class CSmsMsg_ServiceAgent
 {
 public:
-    std::string ServiceName 		;// 
-    std::string URL					;// ip:port(192.168.6.112:10000) or http://pubservice.ezlibs.com:60089/PubService/getPubIP4
+    std::string ServiceName 		;//
+    std::string ServiceLocation		;// ip:port(192.168.6.112:10000) or http://pubservice.ezlibs.com:60089/PubService/getPubIP4
 
-    CSmsMsg_LocalStatus()
+    CSmsMsg_ServiceAgent()
     {
-        LocalIp 	 = "";
-        LocalDateTime  = "2013-07-08 11:31:11";
+        ServiceName 	 = "";
+        ServiceLocation  = "http://pubservice.ezlibs.com:60089/PubService/getPubIP4";
     }
 
     void dump()
     {
-        std::cout << "LocalIp   :" << LocalIp  		<< std::endl;
-        std::cout << "LocalDateTime :" 	 << LocalDateTime  	<< std::endl;
+        std::cout << "ServiceName   :" << ServiceName  		<< std::endl;
+        std::cout << "ServiceLocation :" 	 << ServiceLocation  	<< std::endl;
     }
 };
 
@@ -143,26 +143,23 @@ public:
 class CSmsMsg_RegisterAck
 {
 public:
-    std::string LocalDateTime		;
-    std::string LocalDateTime		;
+    CAckMsgSimple m_ackInfo		;
+    std::string m_Session		; // 2013-07-09 11:23:14
+    std::vector<CSmsMsg_ServiceAgent> m_Service;
 
     CSmsMsg_RegisterAck()
     {
-        ProductID 	 = "";
-        AuthCode  = "";
-        AuthName 	 = "";
-        Password = "";
+        m_Session 	 = "";
     }
 
     void dump()
     {
-        std::cout << "ProductID   :" << ProductID  		<< std::endl;
-        std::cout << "AuthCode :" 	 << AuthCode  	<< std::endl;
-        std::cout << "AuthName    :" << AuthName   		<< std::endl;
-        std::cout << "Password:" 	 << Password 	<< std::endl;
-
-        std::cout << "m_LocalStatus:" 	<< std::endl;
-        m_LocalStatus.dump();
+        m_ackInfo.dump();
+        std::cout << "m_Session   :" << m_Session  		<< std::endl;
+        for (std::vector<CSmsMsg_ServiceAgent>::iterator iter = m_Service.begin(); iter != m_Service.end(); ++iter)
+        {
+            iter->dump();
+        }
     }
 };
 
