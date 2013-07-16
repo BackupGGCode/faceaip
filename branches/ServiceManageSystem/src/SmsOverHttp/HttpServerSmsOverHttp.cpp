@@ -315,21 +315,29 @@ int CHttpServerSmsOverHttp::Do_TestIF( CSmsStack &JsonData)
 // curl http://sms.ezlibs.com:60088/SmsOverHttp/registerURL -d "{ \"AuthCode\" : \"VAuthCode\", \"AuthName\" : \"VAuthName\", \"LocalDateTime\" : \"VLocalDateTime\", \"LocalIp\" : \"VLocalIp\", \"Password\" : \"VPassword\", \"ProductID\" : \"VProductID\" }\n"
 int CHttpServerSmsOverHttp::Do_registerURL( CSmsStack &JsonData)
 {
-    //    LOG4CPLUS_DEBUG(LOG_WEBSERVICES, "Do_registerURL");
+    LOG4CPLUS_DEBUG(LOG_SMS_OVER_HTTP, "Do_registerURL");
     CSmsMsg_RegisterReq __reqMsg;
-    
+
     //todo 使用消息
     if (JsonData.Decode(__reqMsg))
     {
         __reqMsg.dump();
+
+        LOG4CPLUS_DEBUG(LOG_SMS_OVER_HTTP,  "ProductID   :" << __reqMsg.ProductID
+                        << "AuthCode :" 	 << __reqMsg.AuthCode
+                        << "AuthName    :" << __reqMsg.AuthName
+                        << "Password:" 	 << __reqMsg.Password
+                        << "LocalIp   :" << __reqMsg.m_LocalStatus.LocalIp
+                        << "LocalDateTime :" 	 << __reqMsg.m_LocalStatus.LocalDateTime
+                       );
     }
-    
+
     CSmsStack __CSmsStack;
     CSmsMsg_RegisterAck Msg;
     CSmsMsg_ServiceAgent __service;
 
 #if 1
-    //正常 
+    //正常
     __service.ServiceName 	 = "PubServiceGetPubIP4";
     __service.ServiceLocation  = "http://pubservice.ezlibs.com:60089/PubService/getPubIP4";
     Msg.m_Service.push_back(__service);

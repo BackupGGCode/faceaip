@@ -31,14 +31,14 @@ using namespace log4cplus::helpers;
 // 日志所属模块
 #define  LOG_ROOT  Logger::getRoot()
 #define  LOG_SOLAR   Logger::getInstance(LOG4CPLUS_TEXT("MAIN"))
+#define  LOG_SMS_OVER_HTTP Logger::getInstance(LOG4CPLUS_TEXT("HSMS"))
+
 #define  LOG_IPC   Logger::getInstance(LOG4CPLUS_TEXT("IPC"))
 #define  LOG_TURN  Logger::getInstance(LOG4CPLUS_TEXT("TURN"))
 #define  LOG_DB  Logger::getInstance(LOG4CPLUS_TEXT("DB"))
 #define  LOG_ALLOCATION  Logger::getInstance(LOG4CPLUS_TEXT("ALLOC"))
 
 #define  LOG_SMARTHOMEJSTELCOM  Logger::getInstance(LOG4CPLUS_TEXT("JSTEL"))
-// JSt
-#define  LOG_J_WEBSERVICES  Logger::getInstance(LOG4CPLUS_TEXT("JWEBS"))
 // tshome webservice
 #define  LOG_WEBSERVICES  Logger::getInstance(LOG4CPLUS_TEXT("WEBS"))
 #define  LOG_OF_PJLIB  Logger::getInstance(LOG4CPLUS_TEXT("PJLIB"))
