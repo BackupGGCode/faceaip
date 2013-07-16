@@ -70,7 +70,7 @@ private:
     // WEB子系统向连辅子系统注册接口地址的接口
     int Do_registerURL( CSmsStack &JsonData)						;
     
-    #if 0
+#if 0
     // WEB子系统认证接口
     int Do_requestAuth( CTSHomeWebServiceIF &JsonData)						;
     // 主机认证接口

@@ -196,9 +196,9 @@ void CSmsStack::Encode(const CSmsMsg_RegisterReq                                
 
     setValid();
 }
+
 bool CSmsStack::Decode(CSmsMsg_RegisterReq &Msg)
 {
-
     Msg.ProductID    = m_JsonValue["ProductID"]   .asString();
     Msg.AuthCode  = m_JsonValue["AuthCode"] .asString();
     Msg.AuthName     = m_JsonValue["AuthName"]    .asString();
