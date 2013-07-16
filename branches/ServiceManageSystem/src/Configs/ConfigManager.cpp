@@ -75,6 +75,12 @@ int CConfigManager::SetDefaultConfig(int iConfigType)
 
             break;
         }
+        case CFG_IDX_SmsOverHttp:
+        {
+            iRet |= recallConfig(CFG_NAME_SmsOverHttp);
+
+            break;
+        }
         case CFG_IDX_ALL:
         {
             //恢复全部,网络端
@@ -112,6 +118,7 @@ int CConfigManager::initialize(std::string mfile, std::string sfile)
 
     setupConfig(CFG_NAME_WebService, CFG_IDX_WebService, m_configWebService);
     setupConfig(CFG_NAME_PubService, CFG_IDX_PubService, m_configPubService);
+    setupConfig(CFG_NAME_SmsOverHttp, CFG_IDX_SmsOverHttp, m_configSmsOverHttp);
     /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
     // 初始化完毕, 保存一次配置
     CConfigMan::saveFile();

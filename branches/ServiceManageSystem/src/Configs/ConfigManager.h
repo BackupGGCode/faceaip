@@ -28,6 +28,7 @@
 #include "ConfigDatabase.h"
 #include "ConfigWebService.h"
 #include "ConfigPubService.h"
+#include "ConfigSmsOverHttp.h"
 
 typedef enum __cfg_index_t {
     CFG_IDX_General =  0,	// 普通
@@ -37,6 +38,7 @@ typedef enum __cfg_index_t {
     CFG_IDX_DataBase,				// 数据库配置
     CFG_IDX_WebService,				//
     CFG_IDX_PubService,				//
+    CFG_IDX_SmsOverHttp,				//
     CFG_IDX_ALL,			// 实际没有这种配置， 便于恢复全部等用
 }CFG_INDEX;
 
@@ -47,6 +49,7 @@ typedef enum __cfg_index_t {
 #define CFG_NAME_DataBase "DataBase"
 #define CFG_NAME_WebService "WebService"
 #define CFG_NAME_PubService "PubService"
+#define CFG_NAME_SmsOverHttp "SmsOverHttp"
 
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
@@ -76,6 +79,7 @@ private:
     CConfigDatabase			m_configDB;	/*!< dsd */
     CConfigWebService			m_configWebService;	/*!< WebService */
     CConfigPubService			m_configPubService;	/*!< PubService */
+    CConfigSmsOverHttp			m_configSmsOverHttp;	/*!< SmsOverHttp */
 
     /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 

@@ -63,6 +63,7 @@ OBJS_CONFIGS	= \
 		$(GENERALAGENT_BASEDIR_SRC)/Configs/ConfigConsoleOverTcp.o \
 		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigDatabase.o \
 		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigWebService.o\
+		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigSmsOverHttp.o\
 		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigPubService.o
 
 ## json
@@ -131,13 +132,25 @@ OBJS_GENERALAGENT += \
 		${GENERALAGENT_BASEDIR_SRC}/WebService/AgentWebService.o
 
 #######################################################################################################
-##PuService服务器
+##PubService服务器
 CFLAGS += -DUSE_PUBSERVICE
 
 OBJS_GENERALAGENT += \
 		${GENERALAGENT_BASEDIR_SRC}/PubService/HandlerPubService.o \
 		${GENERALAGENT_BASEDIR_SRC}/PubService/HttpServerPubService.o \
 		${GENERALAGENT_BASEDIR_SRC}/PubService/AgentPubService.o
+
+#######################################################################################################
+##SmsOverHttp服务器
+CFLAGS += -DUSE_SMSOVERHTTP
+
+OBJS_GENERALAGENT += \
+		${GENERALAGENT_BASEDIR_SRC}/Stack/SmsStack.o
+
+OBJS_GENERALAGENT += \
+		${GENERALAGENT_BASEDIR_SRC}/SmsOverHttp/HandlerSmsOverHttp.o \
+		${GENERALAGENT_BASEDIR_SRC}/SmsOverHttp/HttpServerSmsOverHttp.o \
+		${GENERALAGENT_BASEDIR_SRC}/SmsOverHttp/AgentSmsOverHttp.o
 
 ##############################################################################
 #use ezutil library for http_parse

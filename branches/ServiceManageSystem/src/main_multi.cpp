@@ -27,6 +27,9 @@
 #ifdef USE_PUBSERVICE
 #include "PubService/AgentPubService.h"
 #endif
+#ifdef USE_SMSOVERHTTP
+#include "SmsOverHttp/AgentSmsOverHttp.h"
+#endif
 #include "GeneralAgent.h"
 
 #ifdef USE_EZCONFIG
@@ -82,13 +85,15 @@ int main(int argc, char *argv[])
     g_GeneralAgent.Start(NULL);
 #endif // #ifdef USE_GENERALAGENTTCPSOCKETCONNECTOR
 
-#ifdef USE_MY_WEBSERVICE
-    g_AgentWebService.Start();
+#ifdef USE_PUBSERVICE
+    g_AgentSmsOverHttp.Start();
 #endif
 #ifdef USE_PUBSERVICE
     g_AgentPubService.Start();
 #endif
-
+#ifdef USE_MY_WEBSERVICE
+    g_AgentWebService.Start();
+#endif
 
     // mainÏß³ÌµÈ´ý
     while (1)

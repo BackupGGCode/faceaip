@@ -19,7 +19,7 @@
 template<>
 void exchangeTable<ConfigWebService>(CConfigExchange& xchg, CConfigTable& table, ConfigWebService& config, int index, int app)
 {
-    xchg.exchange(table, "WebServicePort"    , config.iWebServicePort, 0, 65535 ,60088);
+    xchg.exchange(table, "WebServicePort"    , config.iWebServicePort, 0, 65535 ,60090);
 
     // this module ÊÕµ½µÄ
     xchg.exchange(table, "requestAuth", config.strURL_requestAuth, "/WebService/requestAuth");
