@@ -39,7 +39,16 @@ CSmsStack::~CSmsStack()
 
 bool CSmsStack::Parse( const std::string &document)
 {
+#if 0
+    // 启用严格模式，让非法的json解析时直接返回false，不自动容错。
+    // 编译失败， 库？
+    Json::Features f = Json::Features::strictMode();
+    Json::Reader reader(f);
+#else
+
     Json::Reader reader;
+#endif
+
     bool parsingSuccessful = reader.parse( document, m_JsonValue );
 
     if ( !parsingSuccessful )
@@ -152,6 +161,12 @@ void CSmsStack::Encode(const CAckMsgSimple &Msg)
 
 bool CSmsStack::Decode(CAckMsgSimple &Msg)
 {
+	// 库中默认断言退出，先查看数据是否正常
+    if(!(m_JsonValue.type()==Json::objectValue))
+    {
+        return false;
+    }
+
     Msg.result = m_JsonValue["result"].asString();
     Msg.reason = m_JsonValue["reason"].asString();
 
@@ -172,6 +187,11 @@ void CSmsStack::Encode(const CAckMsgSession &Msg)
 
 bool CSmsStack::Decode(CAckMsgSession &Msg)
 {
+	// 库中默认断言退出，先查看数据是否正常
+    if(!(m_JsonValue.type()==Json::objectValue))
+    {
+        return false;
+    }
 
     Msg.result    = m_JsonValue["result"].asString();
     Msg.reason    = m_JsonValue["reason"].asString();
@@ -199,6 +219,12 @@ void CSmsStack::Encode(const CSmsMsg_RegisterReq                                
 
 bool CSmsStack::Decode(CSmsMsg_RegisterReq &Msg)
 {
+	// 库中默认断言退出，先查看数据是否正常
+    if(!(m_JsonValue.type()==Json::objectValue))
+    {
+        return false;
+    }
+
     Msg.ProductID    = m_JsonValue["ProductID"]   .asString();
     Msg.AuthCode  = m_JsonValue["AuthCode"] .asString();
     Msg.AuthName     = m_JsonValue["AuthName"]    .asString();
@@ -236,10 +262,16 @@ void CSmsStack::Encode(const CSmsMsg_RegisterAck                        &Msg)
 
 bool CSmsStack::Decode(CSmsMsg_RegisterAck &Msg)
 {
+	// 库中默认断言退出，先查看数据是否正常
+    if(!(m_JsonValue.type()==Json::objectValue))
+    {
+        return false;
+    }
+
     Msg.m_ackInfo.result = m_JsonValue["result"].asString();
     Msg.m_ackInfo.reason = m_JsonValue["reason"].asString();
     Msg.m_Session = m_JsonValue["session"].asString();
-    
+
     const Json::Value arrayOperate = m_JsonValue["Service"];
 
     for (unsigned int i = 0; i < arrayOperate.size(); i++)
@@ -250,6 +282,6 @@ bool CSmsStack::Decode(CSmsMsg_RegisterAck &Msg)
 
         Msg.m_Service.push_back(_operate);
     }
-    
+
     return true;
 }

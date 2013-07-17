@@ -132,8 +132,8 @@ public:
 
     void dump()
     {
-        std::cout << "ServiceName   :" << ServiceName  		<< std::endl;
-        std::cout << "ServiceLocation :" 	 << ServiceLocation  	<< std::endl;
+        std::cout << "ServiceName:" << ServiceName  		<< std::endl;
+        std::cout << "ServiceLocation:" 	 << ServiceLocation  	<< std::endl;
     }
 };
 
@@ -155,7 +155,7 @@ public:
     void dump()
     {
         m_ackInfo.dump();
-        std::cout << "m_Session   :" << m_Session  		<< std::endl;
+        std::cout << "m_Session:" << m_Session  		<< std::endl;
         for (std::vector<CSmsMsg_ServiceAgent>::iterator iter = m_Service.begin(); iter != m_Service.end(); ++iter)
         {
             iter->dump();
