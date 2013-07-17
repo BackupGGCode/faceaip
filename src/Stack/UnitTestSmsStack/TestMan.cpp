@@ -168,7 +168,7 @@ void CTestMan::testED_CSmsMsg_RegisterReq							   ()
 
     __CSmsStack.Encode(Msg);
 
-    std::cout << __CSmsStack.ToString() << std::endl;
+    //std::cout << __CSmsStack.ToString() << std::endl;
     //std::cout << __CSmsStack.ToString().size() << std::endl;
     //std::cout << strEncoded.size() << std::endl;
     //std::cout << strEncoded << std::endl;
@@ -188,7 +188,57 @@ void CTestMan::testED_CSmsMsg_RegisterReq							   ()
     CSmsMsg_RegisterReq Msg2;
     __CSmsStack.Decode(Msg2);
     CPPUNIT_ASSERT(Msg.ProductID == "VProductID" );
-    
+
     //Msg2.dump();
+
+
+
+    /////////////////////////////////////////////////////////
+    CSmsStack __CSmsStack_197;
+    CSmsMsg_RegisterAck Msg_RegisterAck;
+    CSmsMsg_ServiceAgent __service;
+
+    //?y3?ê
+    __service.ServiceName        = "PubServiceGetPubIP4";
+    __service.ServiceLocation  = "http://pubservice.ezlibs.com:60089/PubService/getPubIP4";
+    //Msg_RegisterAck.m_Service.push_back(__service);
+    Msg_RegisterAck.m_Service.push_back(__service);
+    Msg_RegisterAck.m_ackInfo.result = "0";
+    Msg_RegisterAck.m_ackInfo.reason = "ok";
+    Msg_RegisterAck.m_Session = "00000000000000000000";
+    __CSmsStack_197.Encode(Msg_RegisterAck);
+    //std::cout << std::endl;
+    //std::cout << __CSmsStack_197.ToString() << std::endl;
+
+    ///////////////////////////////////////////////////////////
+
+    CSmsStack __CSmsStackAck;
+
+    std::string strAck = "[{\"Service\":[{\"ServiceLocation\":\"http://pubservice.ezlibs.com:60089/PubService/getPubIP4\",\"ServiceName\":\"PubServiceGetPubIP4\"},{\"ServiceLocation\":\"http://pubservice.ezlibs.com:60089/PubService/getPubIP4\",\"ServiceName\":\"PubServiceGetPubIP4\"}],\"reason\":\"ok\",\"result\":\"0\",\"session\":\"00000000000000000000\"}]";
+    //__CSmsStackAck.Parse(__CSmsStack_197.ToString());
+    __CSmsStackAck.Parse(strAck);
+
+    //    std::cout << std::endl << "__CSmsStackAck.Parse" <<std::endl;
+    //    std::cout << __CSmsStackAck.ToString() << std::endl;
+
+    CSmsMsg_RegisterAck __ackMsg;
+    // strAck 前后多了[]，数据非法， so failed
+    CPPUNIT_ASSERT(__CSmsStackAck.Decode(__ackMsg) == false );
+
+    __CSmsStackAck.Parse(__CSmsStack_197.ToString());
+    CPPUNIT_ASSERT(__CSmsStackAck.Decode(__ackMsg) == true );
+    CPPUNIT_ASSERT(__ackMsg.m_Session == Msg_RegisterAck.m_Session );
+
+    //    if (__CSmsStackAck.Decode(__ackMsg))
+    //    {
+    //        std::cout << std::endl << "__ackMsg.dump();" << std::endl << "-----------------------" << std::endl;
+    //        __ackMsg.dump();
+    //        std::cout << std::endl << "-----------------------" << std::endl;
+    //    }
+    //    else
+    //    {
+    //        std::cout << std::endl << "__CSmsStackAck.Decode(__ackMsg) FAILED!!" << std::endl;
+    //    }
+
 }
 
