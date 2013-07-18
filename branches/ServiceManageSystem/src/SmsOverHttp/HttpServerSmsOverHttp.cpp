@@ -341,6 +341,9 @@ int CHttpServerSmsOverHttp::Do_registerURL( CSmsStack &JsonData)
     __service.ServiceName 	 = "PubServiceGetPubIP4";
     __service.ServiceLocation  = "http://pubservice.ezlibs.com:60089/PubService/getPubIP4";
     Msg.m_Service.push_back(__service);
+    __service.ServiceName 	 = "KeepConnect";
+    __service.ServiceLocation  = "fw001.ezlibs.com:10000";
+    Msg.m_Service.push_back(__service);
     Msg.m_ackInfo.result = "0";
     Msg.m_ackInfo.reason = "ok";
     Msg.m_Session = "00000000000000000000";
