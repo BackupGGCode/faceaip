@@ -14,7 +14,7 @@
  */
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
-#include "CommonInclude.h"
+//#include "CommonInclude.h"
 #include <string.h>
 #include <stdio.h>
 #include <uuid/uuid.h>
@@ -24,6 +24,23 @@
 #include "str_opr.h"
 #include "StringOpr.h"
 #include "HandlerSmsOverHttp.h"
+#ifdef _DEBUG
+	#define DEB(x)
+	#define DBG(x)
+#else
+	#define DEB(x)
+	#define DBG(x)
+#endif
+
+#ifndef __trip
+	#define __trip printf("-W-%d::%s(%d)\n", (int)time(NULL), __FILE__, __LINE__);
+#endif
+#ifndef __fline
+	#define __fline printf("%s(%d)--", __FILE__, __LINE__);
+#endif
+
+#define ARG_USED(x) (void)&x;
+
 
 CHttpServerSmsOverHttp::CHttpServerSmsOverHttp(ISocketHandler& h) : HttpdSocket(h)
 {

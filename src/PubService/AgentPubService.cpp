@@ -14,12 +14,29 @@
  */
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
-#include "CommonInclude.h"
+//#include "CommonInclude.h"
 #include "TypeDefPubService.h"
 
 #include "AgentPubService.h"
 #include "../Logs.h"
 #include "../Configs/ConfigPubService.h"
+#ifdef _DEBUG
+	#define DEB(x)
+	#define DBG(x)
+#else
+	#define DEB(x)
+	#define DBG(x)
+#endif
+
+#ifndef __trip
+	#define __trip printf("-W-%d::%s(%d)\n", (int)time(NULL), __FILE__, __LINE__);
+#endif
+#ifndef __fline
+	#define __fline printf("%s(%d)--", __FILE__, __LINE__);
+#endif
+
+#define ARG_USED(x) (void)&x;
+
 
 PATTERN_SINGLETON_IMPLEMENT(CAgentPubService);
 void CAgentPubService::Run()
@@ -97,7 +114,7 @@ void CAgentPubService::ConnectAll()
 {
     if (m_ConfigOfPubService.HttpServicePort > 0)
     {
-        DBG_CODE(
+        DBG(
         __fline;
         printf("new m_pCHttpServerPubService: %d\n", m_ConfigOfPubService.HttpServicePort);
          );

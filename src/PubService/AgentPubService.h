@@ -17,7 +17,7 @@
 #ifndef _AgentPubService_H
 #define _AgentPubService_H
 
-#include "CommonInclude.h"
+//#include "CommonInclude.h"
 #include "EZThread.h"
 
 #include <time.h>
