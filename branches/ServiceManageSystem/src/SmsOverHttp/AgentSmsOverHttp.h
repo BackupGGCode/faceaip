@@ -17,7 +17,7 @@
 #ifndef _AgentSmsOverHttp_H
 #define _AgentSmsOverHttp_H
 
-#include "CommonInclude.h"
+//#include "CommonInclude.h"
 #include "EZThread.h"
 
 #include <time.h>

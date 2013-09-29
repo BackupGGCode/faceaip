@@ -14,7 +14,7 @@
  */
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 #define _DEBUG
-#include "CommonInclude.h"
+//#include "CommonInclude.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -22,6 +22,23 @@
 #include "HandlerPubService.h"
 
 #include "HttpServerPubService.h"
+
+#ifdef _DEBUG
+	#define DEB(x)
+	#define DBG(x)
+#else
+	#define DEB(x)
+	#define DBG(x)
+#endif
+
+#ifndef __trip
+	#define __trip printf("-W-%d::%s(%d)\n", (int)time(NULL), __FILE__, __LINE__);
+#endif
+#ifndef __fline
+	#define __fline printf("%s(%d)--", __FILE__, __LINE__);
+#endif
+
+#define ARG_USED(x) (void)&x;
 
 CHandlerPubService::CHandlerPubService(CDoubleOutLog *pLog)
         :SocketHandler(pLog)
@@ -110,7 +127,7 @@ Socket * CHandlerPubService::GetSocketByName(std::string strServerName)
         //tprintf(sendto, "  %9s  %s", p -> Ready() ? "Ready" : "NOT Ready", p->GetSockName().c_str());
     }
 
-    DEB_CODE(printf("CHandlerPubService::GetSocketByName(%s) failed.\n", strServerName.c_str()););
+    DEB(printf("CHandlerPubService::GetSocketByName(%s) failed.\n", strServerName.c_str()););
 
     return NULL;
 }
@@ -132,7 +149,7 @@ Socket * CHandlerPubService::GetSocketBySessionID(std::string strSessionID)
         {}
     }
 
-    DEB_CODE(printf("CHandlerPubService::GetSocketBySessionID(%s) failed.\n", strSessionID.c_str()););
+    DEB(printf("CHandlerPubService::GetSocketBySessionID(%s) failed.\n", strSessionID.c_str()););
 
     return NULL;
 }

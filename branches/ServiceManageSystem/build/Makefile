@@ -16,6 +16,7 @@
 #
 # platforms:
 PLATFORM = linux-x86-32
+PLATFORM = linux-x86-64
 #PLATFORM = linux-hi3515
 #PLATFORM = linux-arm
 #PLATFORM = linux-x86-64-centos5

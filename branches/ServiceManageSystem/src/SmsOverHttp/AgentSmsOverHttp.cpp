@@ -14,12 +14,29 @@
  */
 /*-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-*/
 
-#include "CommonInclude.h"
+//#include "CommonInclude.h"
 #include "TypeDefSmsOverHttp.h"
 
 #include "AgentSmsOverHttp.h"
 #include "../Logs.h"
 #include "../Configs/ConfigSmsOverHttp.h"
+#ifdef _DEBUG
+	#define DEB(x)
+	#define DBG(x)
+#else
+	#define DEB(x)
+	#define DBG(x)
+#endif
+
+#ifndef __trip
+	#define __trip printf("-W-%d::%s(%d)\n", (int)time(NULL), __FILE__, __LINE__);
+#endif
+#ifndef __fline
+	#define __fline printf("%s(%d)--", __FILE__, __LINE__);
+#endif
+
+#define ARG_USED(x) (void)&x;
+
 
 PATTERN_SINGLETON_IMPLEMENT(CAgentSmsOverHttp);
 void CAgentSmsOverHttp::Run()
@@ -97,7 +114,7 @@ void CAgentSmsOverHttp::ConnectAll()
 {
     if (m_ConfigOfSmsOverHttp.HttpServicePort > 0)
     {
-        DBG_CODE(
+        DBG(
         __fline;
         printf("new m_pCHttpServerSmsOverHttp: %d\n", m_ConfigOfSmsOverHttp.HttpServicePort);
          );
