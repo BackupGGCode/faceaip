@@ -164,7 +164,7 @@ void CHttpServerSmsOverHttp::OnDataComplete()
 
     if (m_strBody.size()<strlen("[{}]"))
     {
-        LOG4CPLUS_INFO(LOG_WEBSERVICES, "m_strBody(" << m_strBody.size() << ") not json");
+        LOG4CPLUS_INFO(LOG_WEBSERVICES, "m_strBody(" << m_strBody.size() << ")" << " [" << m_strBody << "] not json");
     }
     else
     {
@@ -291,7 +291,7 @@ int CHttpServerSmsOverHttp::ReturnHttpMsg(const std::string &strMsg, const std::
 
     Send(strMsg);
     Reset();
-    SetCloseAndDelete();
+    //SetCloseAndDelete();
     m_strBody = "";
 
     return 0;

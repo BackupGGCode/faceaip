@@ -1,25 +1,27 @@
 #-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
 #
-# Makefile.Client - Z:\Dropbox\stock\trunk\code\appmodule\GeneralAgent\build\
+# Makefile - GeneralAgent\build\
 #
-# Copyright (C) 2013 ezlibs.com, All Rights Reserved.
+# Copyright (C) 2012 ezlibs.com, All Rights Reserved.
 #
-# $Id: Makefile.Client 1 2013-06-09 04:44:29 WuJunjie Exp $
+# $Id: Makefile 1 2013-10-12 10:52:05 WuJunjie Exp $
 #
 # explain
-#      for tcp server
+#      exp
 #
 # Update:
-#    2013-06-09 04:44 WuJunjie Create
+#    2012-10-18 10:52 WuJunjie Create
 #
 #-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
 #
 # platforms:
 PLATFORM = linux-x86-32
-#PLATFORM = linux-x86-64
 #PLATFORM = linux-hi3515
 #PLATFORM = linux-arm
 #PLATFORM = linux-x86-64-centos5
+#PLATFORM = linux-am335x
+#android
+#PLATFORM = linux-arm-none-gnueabi
 
 VERSION =	1.3
 DIFF_VERSION =	1.0
@@ -37,22 +39,22 @@ GENERALAGENT_BASEDIR_SRC=../src
 
 ##############################################################################
 #库文件位置
-#使用自带库
-#EZLIBS_BASEDIR_LIBS=./libs
+#使用自带库, 目前自带 android 和 x86-32的库
+#EZLIBS_BASEDIR_LIBS=../libs
 
 ##使用发布库
 EZLIBS_BASEDIR_LIBS=$(HOME)/libs
 
 OBJS_GENERALAGENT = \
-		$(GENERALAGENT_BASEDIR_SRC)/DoubleOutLog.o \
+		$(GENERALAGENT_BASEDIR_SRC)/GeneralAgentLog.o \
 		$(GENERALAGENT_BASEDIR_SRC)/GeneralAgentHandler.o\
 		$(GENERALAGENT_BASEDIR_SRC)/GeneralAgentTcpSocket.o \
 		$(GENERALAGENT_BASEDIR_SRC)/GeneralAgent.o
 
 ##############################################################################
-## 配置模块
-#ezConfig
-CFLAGS += -DUSE_EZCONFIG
+# 配置模块
+# Use ezConfig
+CFLAGS += -DEXAMPLE_EZCONFIG
 CFLAGS += -I$(EZLIBS_BASEDIR_LIBS)/include/ezConfig
 LIBS +=	-L$(EZLIBS_BASEDIR_LIBS)/lib -lezConfig-$(PLATFORM)
 #json#thread
@@ -63,95 +65,65 @@ OBJS_CONFIGS	= \
 		$(GENERALAGENT_BASEDIR_SRC)/Configs/ConfigTcpSocketConnector.o \
 		$(GENERALAGENT_BASEDIR_SRC)/Configs/ConfigConsoleOverTcp.o \
 		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigDatabase.o \
-		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigWebService.o\
-		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigSmsOverHttp.o\
-		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigPubService.o
+		${GENERALAGENT_BASEDIR_SRC}/Configs/ConfigWebService.o
 
-## json
-CFLAGS += -I$(EZLIBS_BASEDIR_LIBS)/include/json
-LIBS += -L$(EZLIBS_BASEDIR_LIBS)/lib -ljson-$(PLATFORM)
-#zlib
-CFLAGS += -I$(EZLIBS_BASEDIR_LIBS)/include/zlib
-LIBS += -L$(EZLIBS_BASEDIR_LIBS)/lib -lz-$(PLATFORM)
-##############################################################################
+###############################################################################
 ## 日志模块
-#log4cplus
+#Use log4cplus
+CFLAGS += -DEXAMPLE_LOG4CPP
 CFLAGS+=-I${EZLIBS_BASEDIR_LIBS}/log4cplus-${PLATFORM}/include
 LIBS +=	-L${EZLIBS_BASEDIR_LIBS}/log4cplus-${PLATFORM}/lib -llog4cplus -lrt
-
-CFLAGS += -DUSE_LOG4CPP
-
 
 ##############################################################################
 #以下功能可以随意组合， 但是至少保留一个功能，否则无意义
 #不需要的文件可以删除
 
-CFLAGS += -DUSE_GENERALCONSOLE_OVERTCP #远程调试接口
+CFLAGS += -DEXAMPLE_GENERALCONSOLE_OVERTCP #远程调试接口
 OBJS_GENERALAGENT += \
 		$(GENERALAGENT_BASEDIR_SRC)/GeneralConsoleOverTcp.o
 
-#CFLAGS += -DUSE_SOCKET_STATUS_AGENT #tcp状态服务器
-#OBJS_GENERALAGENT += \
-#		$(GENERALAGENT_BASEDIR_SRC)/SocketStatusAgent.o
+CFLAGS += -DEXAMPLE_SOCKET_STATUS_AGENT #tcp状态服务器
+OBJS_GENERALAGENT += \
+		$(GENERALAGENT_BASEDIR_SRC)/SocketStatusAgent.o
 
-#CFLAGS += -DUSE_GENERALAGENTHTTPKEEPCONNECTOR #http协议的客户端
+#CFLAGS += -DEXAMPLE_GENERALAGENTHTTPKEEPCONNECTOR #http协议的客户端
 #OBJS_GENERALAGENT += \
 #		$(GENERALAGENT_BASEDIR_SRC)/GeneralAgentHttpKeepConnector.o
 
-#CFLAGS += -DUSE_DATAPARSE_EXAMPLE #数据解析示例
+CFLAGS += -DEXAMPLE_DATAPARSE_EXAMPLE #数据解析示例
 
-CFLAGS += -DUSE_GENERALAGENTTCPSOCKETSERVER #TCP服务端
+CFLAGS += -DEXAMPLE_GENERALAGENTTCPSOCKETSERVER #TCP服务端
 OBJS_GENERALAGENT += \
 		$(GENERALAGENT_BASEDIR_SRC)/GeneralAgentTcpSocketServer.o
 
-#CFLAGS += -DUSE_GENERALAGENTTCPSOCKETCONNECTOR #tcp客户端
+#CFLAGS += -DEXAMPLE_GENERALAGENTTCPSOCKETCONNECTOR #tcp客户端
 #OBJS_GENERALAGENT += \
 #		$(GENERALAGENT_BASEDIR_SRC)/GeneralAgentTcpSocketConnector.o
 
-#CFLAGS += -DUSE_GENERALAGENTUDPSOCKETSERVER #UDP服务端
-#OBJS_GENERALAGENT += \
-#		$(GENERALAGENT_BASEDIR_SRC)/GeneralAgentUdpSocket.o
+CFLAGS += -DEXAMPLE_GENERALAGENTUDPSOCKETSERVER #UDP服务端
+OBJS_GENERALAGENT += \
+		$(GENERALAGENT_BASEDIR_SRC)/GeneralAgentUdpSocket.o
 
-CFLAGS += -DUSE_GENERALSOCKETPROCESSOR #使用单独的处理线程
+CFLAGS += -DEXAMPLE_GENERALSOCKETPROCESSOR #使用单独的处理线程
 OBJS_GENERALAGENT += \
 		$(GENERALAGENT_BASEDIR_SRC)/GeneralSocketProcessor.o	\
 		$(GENERALAGENT_BASEDIR_SRC)/SocketMsgQue.o
 
-#CFLAGS += -DUSE_GENERALAGENTHTTPSERVER #HTTP服务端
-#OBJS_GENERALAGENT += \
+CFLAGS += -DEXAMPLE_GENERALAGENTHTTPSERVER #HTTP服务端
+OBJS_GENERALAGENT += \
 		$(GENERALAGENT_BASEDIR_SRC)/GeneralAgentHttpServer.o
+
+CFLAGS += -DEXAMPLE_SIGNAL_ONDATA #使用数据回调机制
 
 #######################################################################################################
 ##WebService服务器
-CFLAGS += -DUSE_MY_WEBSERVICE
-
+CFLAGS += -DEXAMPLE_THE_WEBSERVICE
 OBJS_GENERALAGENT += \
 		${GENERALAGENT_BASEDIR_SRC}/WebService/Session.o \
-		${GENERALAGENT_BASEDIR_SRC}/WebService/TSHomeWebServiceIF.o \
+		${GENERALAGENT_BASEDIR_SRC}/WebService/WebServiceStack.o \
 		${GENERALAGENT_BASEDIR_SRC}/WebService/HandlerWebService.o \
 		${GENERALAGENT_BASEDIR_SRC}/WebService/HttpServerWebService.o \
-		${GENERALAGENT_BASEDIR_SRC}/WebService/AgentWebService.o
-
-#######################################################################################################
-##PubService服务器
-CFLAGS += -DUSE_PUBSERVICE
-
-OBJS_GENERALAGENT += \
-		${GENERALAGENT_BASEDIR_SRC}/PubService/HandlerPubService.o \
-		${GENERALAGENT_BASEDIR_SRC}/PubService/HttpServerPubService.o \
-		${GENERALAGENT_BASEDIR_SRC}/PubService/AgentPubService.o
-
-#######################################################################################################
-##SmsOverHttp服务器
-CFLAGS += -DUSE_SMSOVERHTTP
-
-OBJS_GENERALAGENT += \
-		${GENERALAGENT_BASEDIR_SRC}/Stack/SmsStack.o
-
-OBJS_GENERALAGENT += \
-		${GENERALAGENT_BASEDIR_SRC}/SmsOverHttp/HandlerSmsOverHttp.o \
-		${GENERALAGENT_BASEDIR_SRC}/SmsOverHttp/HttpServerSmsOverHttp.o \
-		${GENERALAGENT_BASEDIR_SRC}/SmsOverHttp/AgentSmsOverHttp.o
+		${GENERALAGENT_BASEDIR_SRC}/WebService/AgentWebService.o 
 
 ##############################################################################
 #use ezutil library for http_parse
@@ -163,32 +135,41 @@ LIBS +=	-L$(EZLIBS_BASEDIR_LIBS)/lib -lezUtilCPP-$(PLATFORM)
 
 CFLAGS += -I${EZLIBS_BASEDIR_LIBS}/include/ppSockets
 LIBS +=	-L${EZLIBS_BASEDIR_LIBS}/lib -lppSockets-$(PLATFORM)
+
+## json
+CFLAGS += -I$(EZLIBS_BASEDIR_LIBS)/include/json
+LIBS += -L$(EZLIBS_BASEDIR_LIBS)/lib -ljson-$(PLATFORM)
+#zlib
+CFLAGS += -I$(EZLIBS_BASEDIR_LIBS)/include/zlib
+LIBS += -L$(EZLIBS_BASEDIR_LIBS)/lib -lz-$(PLATFORM)
+
 #
 CFLAGS += -I${EZLIBS_BASEDIR_LIBS}/include/ezThread
 LIBS +=	-L${EZLIBS_BASEDIR_LIBS}/lib -lezThread-$(PLATFORM)
 LIBS +=	-lpthread
 
-#libsigc
-CFLAGS+=-I${EZLIBS_BASEDIR_LIBS}/libsigc++-$(PLATFORM)/lib/sigc++-2.0/include
-CFLAGS+=-I${EZLIBS_BASEDIR_LIBS}/libsigc++-$(PLATFORM)/include/sigc++-2.0
-LIBS +=	-L${EZLIBS_BASEDIR_LIBS}/libsigc++-${PLATFORM}/lib/ -lsigc-2.0
+#libsigc, do not use it now, use mysignal instead
+#CFLAGS+=-I${EZLIBS_BASEDIR_LIBS}/libsigc++-$(PLATFORM)/lib/sigc++-2.0/include
+#CFLAGS+=-I${EZLIBS_BASEDIR_LIBS}/libsigc++-$(PLATFORM)/include/sigc++-2.0
+#LIBS +=	-L${EZLIBS_BASEDIR_LIBS}/libsigc++-${PLATFORM}/lib/ -lsigc-2.0
 
+CFLAGS += -DHAVE_LIBUUID
 LIBS += -luuid
 
 #利用main调用，不用ezthread库
 OBJS_MAINTHREAD_P = $(GENERALAGENT_BASEDIR_SRC)/main.o
 OBJS_MAINTHREAD_P += $(OBJS_GENERALAGENT)
 OBJS_MAINTHREAD_P += $(OBJS_CONFIGS)
-DIST_MAINTHREAD = generalAgentMain
+DIST_MAINTHREAD = generalAgentMainThread-$(PLATFORM)
 
 #多线程，用ezthread库
 OBJS_MULTITHREAD_P = $(GENERALAGENT_BASEDIR_SRC)/main_multi.o
 OBJS_MULTITHREAD_P += $(OBJS_GENERALAGENT)
 OBJS_MULTITHREAD_P += $(OBJS_CONFIGS)
-DIST_EZLIBS_SMS = ezlibs-SMS-$(PLATFORM)
+DIST_MULTITHREAD = generalAgentMultiThread-$(PLATFORM)
 
-DIST =	$(DIST_EZLIBS_SMS)
-#可以编译多个
+DIST =	$(DIST_MULTITHREAD)
+#服务器不要使用这种方式
 #DIST +=	$(DIST_MAINTHREAD)
 
 all: $(DIST)
@@ -196,7 +177,7 @@ all: $(DIST)
 $(DIST_MAINTHREAD):$(OBJS_MAINTHREAD_P)
 		$(CPP) -o $@ $^ $(LIBS)
 
-$(DIST_EZLIBS_SMS):$(OBJS_MULTITHREAD_P)
+$(DIST_MULTITHREAD):$(OBJS_MULTITHREAD_P)
 		$(CPP) -o $@ $^ $(LIBS)
 
 tar:	clean
@@ -211,6 +192,7 @@ tar:	clean
 	$(CPP) -c $(CFLAGS) $< -o $@
 
 clean:
-	rm -f $(DIST) $(OBJS_MAINTHREAD_P) $(OBJS_MULTITHREAD_P)
+	rm -f generalAgentMultiThread*
+	find $(GENERALAGENT_BASEDIR_SRC) -name "*.o" |xargs rm -f
 	find $(GENERALAGENT_BASEDIR_SRC) -name "*.d" |xargs rm -f
 	find $(GENERALAGENT_BASEDIR_SRC) -name "*.cfbk" |xargs rm -f
